@@ -10,6 +10,7 @@ import (
 var yamlFile embed.FS
 
 func main() {
+	fmt.Println("Starting application...")
 	config := config.LoadConfig(yamlFile)
 	fmt.Printf("Loaded config: %+v\n", config)
 }
