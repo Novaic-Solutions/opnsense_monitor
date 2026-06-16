@@ -17,7 +17,8 @@ type Database struct {
 
 func LoadConfig(yamlFile embed.FS) (*Database) {
 	// Read file
-	file, err := yamlFile.ReadFile("config.yaml")
+	fmt.Printf("Reading config file...\n")
+	file, err := yamlFile.ReadFile("resources/config.yaml")
 	if err != nil {
 		fmt.Printf("Error reading config file: %v\n", err)
 		os.Exit(1)

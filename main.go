@@ -6,7 +6,7 @@ import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
-//go:embed config.yaml
+//go:embed resources/config.yaml
 var yamlFile embed.FS
 
 func main() {
