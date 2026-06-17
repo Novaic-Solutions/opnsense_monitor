@@ -3,35 +3,45 @@ package config
 import (
 	"embed"
 	"fmt"
-	//"os"
-	//"gopkg.in/yaml.v3"
+	"os"
+	//"reflect"
+	"gopkg.in/yaml.v3"
 )
 
-type Database struct {
+type Config struct {
+	Database struct {
 		Host	 string `yaml:"host"`
 		Port	 int    `yaml:"port"`
 		User	 string `yaml:"user"`
 		Password string `yaml:"password"`
 		Name	 string `yaml:"name"`
+	} `yaml:"database"`
 }
 
-func LoadConfig(yamlFile embed.FS) (*Database) {
+
+func LoadConfig(yamlFile embed.FS) (*Config) {
+
 	// Read file
 	fmt.Printf("Reading config file...\n")
-	// file, err := yamlFile.ReadFile("resources/config.yaml")
-	// if err != nil {
-	// 	fmt.Printf("Error 2222222 reading config file: %v\n", err)
-	// 	os.Exit(1)
-	// }
+
+	file, err := yamlFile.ReadFile("resources/config.yaml")
+	if err != nil {
+		fmt.Printf("Error - reading - config file: %v\n", err)
+		os.Exit(1)
+	}
+
+	// // print the data from the config.yaml file
+	// fmt.Printf("The data from the config.yaml file: %s\n", string(file))
+	// fmt.Printf("The type of the data from the config.yaml file: %s\n", reflect.TypeOf(file))
 
 	// Create Database struct
-	config := &Database{}
+	config := Config{}
 
 	// Unmarshal, which is their stupidass term for SERIALIZE or PARSE, the yaml file into the struct
-	// if err := yaml.Unmarshal(file, config); err != nil {
-	// 	fmt.Printf("Error 1111111 parsing config file: %v\n", err)
-	// 	os.Exit(1)
-	// }
+	if err := yaml.Unmarshal(file, &config); err != nil {
+		fmt.Printf("Error - parsing - config file: %v\n", err)
+		os.Exit(1)
+	}
 
-	return config
+	return &config
 }

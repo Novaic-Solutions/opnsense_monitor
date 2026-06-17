@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/novaic-solutions/opnsense_monitor/config"
+	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
 //go:embed resources/config.yaml
