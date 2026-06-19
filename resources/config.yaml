@@ -4,3 +4,8 @@ database:
   name: "my_database"
   user: "my_user"
   password: "my_password"
+
+endpoint:
+  api_key: "your_api_key_here"
+  api_secret: "your_api_secret_here"
+  base_url: "https://api.example.com"
