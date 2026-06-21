@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+type ApiRequest struct {
+	Method string
+	Endpoint string
+	Body []byte
+	Username string
+	Password string
+}
 
 // Create TLS Config
 func CreateTlsConfig() *tls.Config {

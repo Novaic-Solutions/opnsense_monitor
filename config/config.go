@@ -8,6 +8,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type ApiEndpoint struct {
+	Uri string
+	Method string
+	ResponseType string
+}
+
 type Config struct {
 	Database struct {
 		Host	 string `yaml:"host"`
