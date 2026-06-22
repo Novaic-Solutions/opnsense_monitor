@@ -8,10 +8,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ApiEndpoint struct {
-	Uri string
-	Method string
-	ResponseType string
+type Endpoint struct {
+	Uri string `yaml:"uri"`
+	Method string `yaml:"method"`
+	ResponseType string `yaml:"response_type"`
+	Params string `yaml:"params"`
+	RequestBody string `yaml:"request_body"`
 }
 
 type Config struct {
@@ -22,6 +24,12 @@ type Config struct {
 		Password string `yaml:"password"`
 		Name	 string `yaml:"name"`
 	} `yaml:"database"`
+	API struct {
+		ApiKey    string `yaml:"api_key"`
+		ApiSecret string `yaml:"api_secret"`
+		BaseURL   string `yaml:"base_url"`
+		Endpoints []Endpoint `yaml:"endpoints"`
+	} `yaml:"api"`
 }
 
 
