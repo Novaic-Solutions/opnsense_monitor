@@ -8,13 +8,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Endpoint struct {
-	Uri string `yaml:"uri"`
-	Method string `yaml:"method"`
-	ResponseType string `yaml:"response_type"`
-	Params string `yaml:"params"`
-	RequestBody string `yaml:"request_body"`
-}
+//----------------------------------------------------------------------
+//       Structs for the config.yaml file objects
+//----------------------------------------------------------------------
 
 type Config struct {
 	Database struct {
@@ -32,7 +28,20 @@ type Config struct {
 	} `yaml:"api"`
 }
 
+// Endpoint represents a single API Endpoint to call and the 
+// data required to perform the request.
+type Endpoint struct {
+	Uri string `yaml:"uri"`
+	Method string `yaml:"method"`
+	ResponseType string `yaml:"response_type"`
+	Params string `yaml:"params"`
+	RequestBody any `yaml:"request_body"`
+}
 
+
+//----------------------------------------------------------------------
+//       LoadConfig - Load the config.yaml file into a Config struct
+//----------------------------------------------------------------------
 func LoadConfig(yamlFile embed.FS) (*Config) {
 
 	// Read file
