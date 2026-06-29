@@ -18,3 +18,25 @@ api:
         current: 1
         rowCount: 50
         resolve: "no"
+
+    - uri: "/api/diagnostics/interface/getInterfaceStatistics"
+      method: "GET"
+      response_type: "application/json"
+      params: ""
+      request_body: {}
+
+    - uri: "/api/diagnostics/firewall/query_pf_top"
+      method: "POST"
+      response_type: "application/json"
+      params: ""
+      request_body:
+        current: 1
+        rowCount: 50
+    
+    - uri: "/api/diagnostics/firewall/query_states"
+      method: "POST"
+      response_type: "application/json"
+      params: ""
+      request_body:
+        current: 1
+        rowCount: 50

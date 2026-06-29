@@ -15,21 +15,28 @@ type ApiRequest struct {
 	Password string
 }
 
+//------------------------------------------------------------------------------
 // Create TLS Config
+//------------------------------------------------------------------------------
+
 func CreateTlsConfig() *tls.Config {
 	return &tls.Config{
 		InsecureSkipVerify: true,
 	}
 }
 
+//------------------------------------------------------------------------------
 // Create Transport for HTTP Client
+//------------------------------------------------------------------------------
 func CreateHTTPTransport() *http.Transport{
 	return &http.Transport{
 		TLSClientConfig: CreateTlsConfig(),
 	}
 }
 
+//------------------------------------------------------------------------------
 // Create HTTP Client
+//------------------------------------------------------------------------------
 func CreateHTTPClient(timeout int) *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(timeout) * time.Second,
@@ -37,7 +44,9 @@ func CreateHTTPClient(timeout int) *http.Client {
 	}
 }
 
+//------------------------------------------------------------------------------
 // Create Request with Basic Auth and send it
+//------------------------------------------------------------------------------
 func SendRequest(method, url, username, password string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
