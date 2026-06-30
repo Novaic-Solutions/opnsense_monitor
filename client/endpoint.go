@@ -10,6 +10,7 @@ import (
 type ApiRequest struct {
 	Method string
 	Endpoint string
+	ResponseType string
 	Body []byte
 	Username string
 	Password string
@@ -28,7 +29,7 @@ func CreateTlsConfig() *tls.Config {
 //------------------------------------------------------------------------------
 // Create Transport for HTTP Client
 //------------------------------------------------------------------------------
-func CreateHTTPTransport() *http.Transport{
+func CreateHTTPTransport() *http.Transport {
 	return &http.Transport{
 		TLSClientConfig: CreateTlsConfig(),
 	}
