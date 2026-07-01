@@ -48,14 +48,14 @@ func CreateHTTPClient(timeout int) *http.Client {
 //------------------------------------------------------------------------------
 // Create Request with Basic Auth and send it
 //------------------------------------------------------------------------------
-func SendRequest(method, url, username, password string, body []byte) (*http.Response, error) {
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
+func (apiReq *ApiRequest) SendRequest() (*http.Response, error) {
+	req, err := http.NewRequest(apiReq.Method, apiReq.Endpoint, bytes.NewBuffer(apiReq.Body))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(username, password)
+	req.SetBasicAuth(apiReq.Username, apiReq.Password)
 
 	client := CreateHTTPClient(30)
 	resp, err := client.Do(req)

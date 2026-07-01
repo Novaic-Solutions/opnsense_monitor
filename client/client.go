@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 )
 
+type Client struct {
+	
+}
 
 func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 	apiObj := make([]ApiRequest, 0, 100)
@@ -31,4 +34,11 @@ func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 		}
 		apiObj = append(apiObj, newReq)
 	}
+
+	if len(apiObj) == 0 {
+		return nil, fmt.Errorf("No API requests found in configuration")
+	}
+
+	return &apiObj, nil
 }
+
