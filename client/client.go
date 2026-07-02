@@ -12,6 +12,9 @@ type Client struct {
 	// Probably a channel to send response back on
 }
 
+//----------------------------------------------------------------------------
+// Populate API Requests from Config
+//----------------------------------------------------------------------------
 func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 	apiObj := make([]ApiRequest, 0, 100)
 
@@ -44,6 +47,9 @@ func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 	return &apiObj, nil
 }
 
+//----------------------------------------------------------------------------
+// Start Monitoring an endpoint 
+//----------------------------------------------------------------------------
 func (cli *Client) StartMonitoring() {
 	resp, err := cli.ApiRequest.SendRequest()
 	if err != nil {
