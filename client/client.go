@@ -3,13 +3,23 @@ package client
 import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"fmt"
+	"time"
 	"encoding/json"
 	"io/ioutil"
 )
 
+//----------------------------------------------------------------------------
+//  Used to store the response from the API endpoint and send it through
+//  a channel to the server for processing and storage in the database.
+//----------------------------------------------------------------------------
+type EndpointResponse struct {
+	Uri string
+	Timestamp string
+	Data string
+}
 type Client struct {
 	ApiRequest *ApiRequest
-	// Probably a channel to send response back on
+	ResponseChannel chan EndpointResponse
 }
 
 //----------------------------------------------------------------------------

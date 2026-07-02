@@ -8,7 +8,8 @@ package data
 //------------------------------------------------------------------------------
 
 type DataEntry struct {
-
+	URI string
+	Timestamp string
 }
 
 type DataRetriever struct {
