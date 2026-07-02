@@ -5,6 +5,10 @@ database:
   user: "my_user"
   password: "my_password"
 
+server:
+  host: "localhost"
+  port: 8080
+
 api:
   api_key: "your_api_key_here"
   api_secret: "your_api_secret_here"
