@@ -11,7 +11,6 @@ import (
 //----------------------------------------------------------------------
 //       Structs for the config.yaml file objects
 //----------------------------------------------------------------------
-
 type Config struct {
 	Database struct {
 		Host	 string `yaml:"host"`
@@ -28,8 +27,10 @@ type Config struct {
 	} `yaml:"api"`
 }
 
+//----------------------------------------------------------------------
 // Endpoint represents a single API Endpoint to call and the 
 // data required to perform the request.
+//----------------------------------------------------------------------
 type Endpoint struct {
 	Uri string `yaml:"uri"`
 	Method string `yaml:"method"`
