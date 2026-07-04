@@ -14,6 +14,32 @@ type ResponseData struct {
 	rows []any
 }
 
+//----------------------------------------------------------------------------
+//	/api/diagnostics/interface/getInterfaceStatistics
+//----------------------------------------------------------------------------
+type IfaceStatistics struct {
+	Statistics map[string]IfaceStatistic
+}
+
+type IfaceStatistic struct {
+	Name string
+	Flags string
+	Mtu int
+	Network string
+	Address string
+	ReceivedPackets string
+	ReceivedErrors string
+	DroppedPackets string
+	ReceivedBytes string
+	SentPackets string
+	SendErrors string
+	SentBytes string
+	Collisions string
+}
+
+//------------------------------------------------------------------------------
+//	/api/diagnostics/firewall/query_states
+//------------------------------------------------------------------------------
 type FirewallState struct {
 	Label string
 	Descr string
@@ -37,6 +63,9 @@ type FirewallState struct {
 	Interface string
 }
 
+//------------------------------------------------------------------------------
+// 	/api/diagnostics/firewall/query_pf_top
+//------------------------------------------------------------------------------
 type FirewallSession struct {
 	Proto string
 	Dir string
@@ -54,6 +83,22 @@ type FirewallSession struct {
 	Rule string
 	Label string
 	Descr string
+}
+
+//------------------------------------------------------------------------------
+// 	/api/diagnostics/interface/search_arp/
+//------------------------------------------------------------------------------
+type ArpTableEntry struct {
+	Mac string
+	Ip string
+	Interface string
+	Expired bool
+	Expires int
+	Permanent bool
+	Type string
+	Manufacturer string
+	Hostname string
+	Intf_description string	
 }
 
 type DataEntry struct {
