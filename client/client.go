@@ -3,9 +3,9 @@ package client
 import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"fmt"
-	"time"
 	"encoding/json"
-	"io/ioutil"
+	"io"
+	"time"
 )
 
 //----------------------------------------------------------------------------
@@ -58,17 +58,28 @@ func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 }
 
 //----------------------------------------------------------------------------
-// Start Monitoring an endpoint 
+// Create new client
 //----------------------------------------------------------------------------
-func (cli *Client) StartMonitoring() {
+func NewClient(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *Client {
+	return &Client{
+		ApiRequest: apiRequest,
+		ResponseChannel: responseChannel,
+	}
+}
+
+//----------------------------------------------------------------------------
+// Send request to API endpoint and gather response, then place on the 
+// channel for processing by the server.
+//----------------------------------------------------------------------------
+func (cli *Client) Gather() {
 	resp, err := cli.ApiRequest.SendRequest()
 	if err != nil {
 		fmt.Printf("Error sending request: %v", err)
-		return
+		return 
 	}
 	defer resp.Body.Close()
 	
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading response body: %v", err)
 		return
@@ -79,6 +90,12 @@ func (cli *Client) StartMonitoring() {
 
 	// Add logic here to process the response and send it through the channel
 	// for further processing
+
+	cli.ResponseChannel <- EndpointResponse{
+		Uri: cli.ApiRequest.Endpoint,
+		Timestamp: time.Now().Format(time.RFC3339),
+		Data: string(body),
+	}
 
 }
 

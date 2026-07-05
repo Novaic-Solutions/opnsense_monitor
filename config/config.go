@@ -19,6 +19,10 @@ type Config struct {
 		Password string `yaml:"password"`
 		Name	 string `yaml:"name"`
 	} `yaml:"database"`
+	Server struct {
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
+	} `yaml:"server"`
 	API struct {
 		ApiKey    string `yaml:"api_key"`
 		ApiSecret string `yaml:"api_secret"`
