@@ -15,7 +15,7 @@ import (
 type EndpointResponse struct {
 	Uri string
 	Timestamp string
-	Data string
+	Data map[string]interface{}
 }
 type Client struct {
 	ApiRequest *ApiRequest
@@ -29,14 +29,18 @@ func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 	apiObj := make([]ApiRequest, 0, 100)
 
 	for _, value := range conf.API.Endpoints {
-		fmt.Println("---------------------------------")
-		//fmt.Println(value)
-		//fmt.Println(reflect.TypeOf(value.RequestBody))
+
 		endp := value.RequestBody.(map[string]interface{})
 
 		bytes, err := json.Marshal(endp)
 		if err != nil {
 			fmt.Printf("Error marshaling to JSON: %v", err)
+		}
+
+		// Prevents the body being sent as an empty JSON object when it is not needed for the request.
+		// This should help prevent 400 errors.
+		if len(endp) == 0 {
+			bytes = nil
 		}
 
 		newReq := ApiRequest{
@@ -85,8 +89,18 @@ func (cli *Client) Gather() {
 		return
 	}
 
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	fmt.Printf("Response Body: %s\n", string(body))
+	var dataResult map[string]interface{}
+	if err := json.Unmarshal(body, &dataResult); err != nil {
+		fmt.Println("---------------------------------------------------")
+		fmt.Printf("Error unmarshaling response body: %v\n", err)
+		fmt.Printf("URI: %s\n", cli.ApiRequest.Endpoint)
+		fmt.Printf("Response Body: %s\n", string(body))
+		fmt.Println("---------------------------------------------------")
+		return
+	}
+
+	// fmt.Printf("Response Status: %s\n", resp.Status)
+	// fmt.Printf("Response Body: %s\n", string(body))
 
 	// Add logic here to process the response and send it through the channel
 	// for further processing
@@ -94,7 +108,7 @@ func (cli *Client) Gather() {
 	cli.ResponseChannel <- EndpointResponse{
 		Uri: cli.ApiRequest.Endpoint,
 		Timestamp: time.Now().Format(time.RFC3339),
-		Data: string(body),
+		Data: dataResult,
 	}
 
 }

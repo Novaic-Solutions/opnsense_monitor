@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"encoding/json"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 )
@@ -20,7 +21,7 @@ type Server struct {
 //----------------------------------------------------------------------------
 func (serv Server) GatherData() string {
 	totalClient := 0
-	dataString := ""
+	dataString := make(map[string]interface{})
 
 	for _, cli := range serv.Clients {
 		// Here, eventually, gather the data from the database for each client
@@ -32,12 +33,24 @@ func (serv Server) GatherData() string {
 
 	for totalClient > 0 {
 		response := <-serv.ResponseChannel
-		dataString += response.Data + "\n"
+		if response.Data == nil {
+			fmt.Printf("Error: No data received from client for URI: %s\n", response.Uri)
+			totalClient--
+			continue
+		}
+		dataString[response.Uri] = response.Data
 		totalClient--
 	}
 
-	return dataString
+	responseBytes, err := json.Marshal(dataString)
+	if err != nil {
+		fmt.Printf("Error marshaling data to JSON: %v\n", err)
+		return ""
+	}
 
+	respString := string(responseBytes)
+
+	return respString
 }
 
 //----------------------------------------------------------------------------

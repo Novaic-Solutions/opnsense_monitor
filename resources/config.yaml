@@ -6,13 +6,13 @@ database:
   password: "my_password"
 
 server:
-  host: "localhost"
-  port: 8080
+  host: ""
+  port: 0
 
 api:
-  api_key: "your_api_key_here"
-  api_secret: "your_api_secret_here"
-  base_url: "https://api.example.com"
+  api_key: ""
+  api_secret: ""
+  base_url: ""
   endpoints:
     - uri: "/api/diagnostics/interface/search_arp/"
       method: "POST"
@@ -20,7 +20,7 @@ api:
       params: ""
       request_body: 
         current: 1
-        rowCount: 50
+        rowCount: -1
         resolve: "no"
 
     - uri: "/api/diagnostics/interface/getInterfaceStatistics"
@@ -35,7 +35,7 @@ api:
       params: ""
       request_body:
         current: 1
-        rowCount: 50
+        rowCount: -1
     
     - uri: "/api/diagnostics/firewall/query_states"
       method: "POST"
@@ -43,4 +43,4 @@ api:
       params: ""
       request_body:
         current: 1
-        rowCount: 50
+        rowCount: -1

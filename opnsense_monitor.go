@@ -3,9 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
-	//"encoding/json"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	//"github.com/Novaic-Solutions/opnsense_monitor/endpoint"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	"github.com/Novaic-Solutions/opnsense_monitor/server"
 )
