@@ -109,3 +109,42 @@ type DataEntry struct {
 type DataRetriever struct {
 	
 }
+
+//----------------------------------------------------------------------------
+// 	/api/diagnostics/firewall/log/
+//------------------------------------------------------------------------------
+type FirewallLogEntry struct {
+	Rulenr string
+	Subrulenr string
+	Anchorname string
+	Rid string
+	Interface string
+	Reason string
+	Action string
+	Dir string
+	Ipversion string
+	Tos string
+	Ecn string
+	Ttl string
+	Id string
+	Offset string
+	Ipflags string
+	Protonum string
+	Protoname string
+	Length string
+	Src string
+	Dst string
+	Srcport string
+	Dstport string
+	Datalen string
+	Tcpflags string
+	Seq string
+	Ack string
+	Urp string
+	Tcpopts string
+	Timestamp string
+	Host string
+	Digest string
+	Label string
+}
+
