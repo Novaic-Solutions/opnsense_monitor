@@ -37,6 +37,44 @@ type IfaceStatistic struct {
 	Collisions string
 }
 
+//----------------------------------------------------------------------------
+// /api/diagnostics/firewall/pf_statistics/interfaces
+//----------------------------------------------------------------------------
+type IfaceTraffic struct {
+	Cleared string
+	References int
+	In4_pass_packets uint64
+	In4_pass_bytes uint64
+	In4_block_packets uint64
+	In4_block_bytes uint64
+	Out4_pass_packets uint64
+	Out4_pass_bytes uint64
+	Out4_block_packets uint64
+	Out4_block_bytes uint64
+	In6_pass_packets uint64
+	In6_pass_bytes uint64
+	In6_block_packets uint64
+	In6_block_bytes uint64
+	Out6_pass_packets uint64
+	Out6_pass_bytes uint64
+	Out6_block_packets uint64
+	Out6_block_bytes uint64
+}
+
+
+//----------------------------------------------------------------------------
+// /api/diagnostics/firewall/pf_statistics/rules
+//----------------------------------------------------------------------------
+type FirewallRuleTraffic struct {
+	Evaluations uint64
+	Packets uint64
+	Bytes uint64
+	States int
+	Inserted string
+	State_Creations int
+	Time string
+}
+
 //------------------------------------------------------------------------------
 //	/api/diagnostics/firewall/query_states
 //------------------------------------------------------------------------------
@@ -84,6 +122,9 @@ type FirewallSession struct {
 	Label string
 	Descr string
 }
+
+
+
 
 //------------------------------------------------------------------------------
 // 	/api/diagnostics/interface/search_arp/

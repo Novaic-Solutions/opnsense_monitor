@@ -53,3 +53,10 @@ api:
       response_type: "application/json"
       params: ""
       request_body: {}
+
+# Statistics for the firewall interfaces.
+    - uri: "/api/diagnostics/firewall/pf_statistics/interfaces"
+      method: "GET"
+      response_type: "application/json"
+      params: ""
+      request_body: {}
