@@ -23,6 +23,8 @@ func (serv Server) GatherData() string {
 	totalClient := 0
 	dataString := make(map[string]interface{})
 
+	// Loop over the clients and start their loops in goroutines, where they
+	// will 
 	for _, cli := range serv.Clients {
 		// Here, eventually, gather the data from the database for each client
 		// and form the JSON response for the page.
@@ -31,6 +33,7 @@ func (serv Server) GatherData() string {
 		totalClient++
 	}
 
+	// 
 	for totalClient > 0 {
 		response := <-serv.ResponseChannel
 		if response.Data == nil {

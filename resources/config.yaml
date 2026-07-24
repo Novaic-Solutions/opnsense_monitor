@@ -47,7 +47,6 @@ api:
 
 # Firewall logs stream link. May need to look into doing a websession 
 # to continually stream the data and update some table.
-
     - uri: "/api/diagnostics/firewall/log/"
       method: "GET"
       response_type: "application/json"
@@ -61,6 +60,7 @@ api:
       params: ""
       request_body: {}
 
+# Live stream of firewall logs.
     - uri: "/api/diagnostics/firewall/log/"
       method: "GET"
       response_type: "application/json"

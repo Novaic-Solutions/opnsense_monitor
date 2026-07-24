@@ -77,12 +77,13 @@ func NewClient(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *C
 //----------------------------------------------------------------------------
 func (cli *Client) Gather() {
 	resp, err := cli.ApiRequest.SendRequest()
+	
 	if err != nil {
 		fmt.Printf("Error sending request: %v", err)
 		return 
 	}
 	defer resp.Body.Close()
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading response body: %v", err)
@@ -105,6 +106,8 @@ func (cli *Client) Gather() {
 	// Add logic here to process the response and send it through the channel
 	// for further processing
 
+	// Put the response data on the channel for processing 
+	// by the server.
 	cli.ResponseChannel <- EndpointResponse{
 		Uri: cli.ApiRequest.Endpoint,
 		Timestamp: time.Now().Format(time.RFC3339),

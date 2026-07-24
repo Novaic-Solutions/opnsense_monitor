@@ -59,13 +59,18 @@ func init() {
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
+	// Create a slice to hold the clients. One for each endpoint in the config file.
 	httpClients := make([]*client.Client, 0, 100)
 	responseChannel := make(chan client.EndpointResponse, 100)
 
 	fmt.Println("Starting application...")
+	
+	// Load the configuration from the embedded config.yaml file.
 	conf := config.LoadConfig(yamlFile)
 	fmt.Printf("Loaded config: %+v\n", conf)
 
+	// Send the client slice and the response channel to CreateApiRequests
+	// To populate the slice with the clients for each of the endpoints in the config file.
 	err := CreateApiRequests(conf, &httpClients, responseChannel)
 	if err != nil {
 		fmt.Printf("Error creating API requests: %v\n", err)
