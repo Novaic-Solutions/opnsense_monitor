@@ -61,7 +61,6 @@ type IfaceTraffic struct {
 	Out6_block_bytes uint64
 }
 
-
 //----------------------------------------------------------------------------
 // /api/diagnostics/firewall/pf_statistics/rules
 //----------------------------------------------------------------------------
@@ -122,9 +121,6 @@ type FirewallSession struct {
 	Label string
 	Descr string
 }
-
-
-
 
 //------------------------------------------------------------------------------
 // 	/api/diagnostics/interface/search_arp/
@@ -188,8 +184,6 @@ type FirewallLogEntry struct {
 	Digest string
 	Label string
 }
-
-
 
 //----------------------------------------------------------------------------
 // api/diagnostics/firewall/log/

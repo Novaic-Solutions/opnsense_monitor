@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"os"
-	//"reflect"
 	"gopkg.in/yaml.v3"
 )
 
@@ -35,12 +34,17 @@ type Config struct {
 // Endpoint represents a single API Endpoint to call and the 
 // data required to perform the request.
 //----------------------------------------------------------------------
-type Endpoint struct {
+type RequestObj struct {
 	Uri string `yaml:"uri"`
 	Method string `yaml:"method"`
 	ResponseType string `yaml:"response_type"`
 	Params string `yaml:"params"`
 	RequestBody any `yaml:"request_body"`
+}
+
+type Endpoint struct {
+	Request RequestObj `yaml:"request"`
+	ResponseObjType string `yaml:"response_obj_type"`
 }
 
 

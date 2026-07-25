@@ -14,55 +14,59 @@ api:
   api_secret: ""
   base_url: ""
   endpoints:
-    - uri: "/api/diagnostics/interface/search_arp/"
-      method: "POST"
-      response_type: "application/json"
-      params: ""
-      request_body: 
-        current: 1
-        rowCount: -1
-        resolve: "no"
+    - request:
+        uri: "/api/diagnostics/interface/search_arp/"
+        method: "POST"
+        response_type: "application/json"
+        params: ""
+        request_body: 
+          current: 1
+          rowCount: -1
+          resolve: "no"
+      response_obj_type: "ArpTableEntry"
 
-    - uri: "/api/diagnostics/interface/getInterfaceStatistics"
-      method: "GET"
-      response_type: "application/json"
-      params: ""
-      request_body: {}
+    - request:
+        uri: "/api/diagnostics/interface/getInterfaceStatistics"
+        method: "GET"
+        response_type: "application/json"
+        params: ""
+        request_body: {}
+      response_obj_type: "IFaceStatistics"
 
-    - uri: "/api/diagnostics/firewall/query_pf_top"
-      method: "POST"
-      response_type: "application/json"
-      params: ""
-      request_body:
-        current: 1
-        rowCount: -1
+    - request:
+        uri: "/api/diagnostics/firewall/query_pf_top"
+        method: "POST"
+        response_type: "application/json"
+        params: ""
+        request_body:
+          current: 1
+          rowCount: -1
+      response_obj_type: "FirewallSession"
     
-    - uri: "/api/diagnostics/firewall/query_states"
-      method: "POST"
-      response_type: "application/json"
-      params: ""
-      request_body:
-        current: 1
-        rowCount: -1
-
-# Firewall logs stream link. May need to look into doing a websession 
-# to continually stream the data and update some table.
-    - uri: "/api/diagnostics/firewall/log/"
-      method: "GET"
-      response_type: "application/json"
-      params: ""
-      request_body: {}
+    - request:
+        uri: "/api/diagnostics/firewall/query_states"
+        method: "POST"
+        response_type: "application/json"
+        params: ""
+        request_body:
+          current: 1
+          rowCount: -1
+      response_obj_type: "FirewallState"
 
 # Statistics for the firewall interfaces.
-    - uri: "/api/diagnostics/firewall/pf_statistics/interfaces"
-      method: "GET"
-      response_type: "application/json"
-      params: ""
-      request_body: {}
+    - request:
+        uri: "/api/diagnostics/firewall/pf_statistics/interfaces"
+        method: "GET"
+        response_type: "application/json"
+        params: ""
+        request_body: {}
+      response_obj_type: "IfaceTraffic"
 
 # Live stream of firewall logs.
-    - uri: "/api/diagnostics/firewall/log/"
-      method: "GET"
-      response_type: "application/json"
-      params: "digest={digest}&limit={limit}"
-      request_body: {}
+    - request:
+        uri: "/api/diagnostics/firewall/log/"
+        method: "GET"
+        response_type: "application/json"
+        params: "digest={digest}&limit={limit}"
+        request_body: {}
+      response_obj_type: "FirewallLogEntry"
