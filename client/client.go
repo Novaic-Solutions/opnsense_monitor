@@ -23,6 +23,12 @@ type Client struct {
 	ResponseChannel chan EndpointResponse
 }
 
+// TODO: Use an interface for the client so that the server can use either a Client or a StreamClient,
+//  depending on the type of endpoint being monitored.
+type Caller interface {
+	Gather()
+}
+
 //----------------------------------------------------------------------------
 // Populate API Requests from Config
 //----------------------------------------------------------------------------
