@@ -17,6 +17,7 @@ type EndpointResponse struct {
 	Timestamp string
 	Data map[string]interface{}
 }
+
 type Client struct {
 	ApiRequest *ApiRequest
 	ResponseChannel chan EndpointResponse
@@ -37,8 +38,10 @@ func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
 			fmt.Printf("Client.go -- Error marshaling to JSON: %v", err)
 		}
 
+		//-------------------------------------------------------------------------------------
 		// Prevents the body being sent as an empty JSON object when it is not needed for the request.
 		// This should help prevent 400 errors.
+		//-------------------------------------------------------------------------------------
 		if len(endp) == 0 {
 			bytes = nil
 		}
@@ -84,12 +87,22 @@ func (cli *Client) Gather() {
 	}
 	defer resp.Body.Close()
 
+
+	//----------------------------------------------------------------------------
+	// Read the response body
+	//----------------------------------------------------------------------------
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Client.go -- Error reading response body: %v", err)
 		return
 	}
 
+
+	//----------------------------------------------------------------------------
+	// Create dataResult map to hold the response data
+	// in a format that can hold the data from the body after it is 
+	// serialized from JSON.
+	//----------------------------------------------------------------------------
 	var dataResult map[string]interface{}
 	if err := json.Unmarshal(body, &dataResult); err != nil {
 		fmt.Println("---------------------------------------------------")

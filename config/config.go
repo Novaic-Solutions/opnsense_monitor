@@ -44,6 +44,7 @@ type RequestObj struct {
 
 type Endpoint struct {
 	Request RequestObj `yaml:"request"`
+	Type string `yaml:"type"`
 	ResponseObjType string `yaml:"response_obj_type"`
 }
 
