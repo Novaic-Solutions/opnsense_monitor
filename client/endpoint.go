@@ -83,14 +83,14 @@ func (apiReq *ApiRequest) SendRequest() (*http.Response, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Request sent to %s with method %s\n", apiReq.Endpoint, apiReq.Method)
-	fmt.Printf("Response Status: %s\n", resp.Status)
+	fmt.Printf("Endpoint.go -- Request sent to %s with method %s\n", apiReq.Endpoint, apiReq.Method)
+	fmt.Printf("Endpoint.go -- Response Status: %s\n", resp.Status)
 	
 	// Check if the response body is empty and print it for debugging purposes.
 	if apiReq.Body != nil {
-		fmt.Printf("Request Body: %s\n", string(apiReq.Body))
+		fmt.Printf("Endpoint.go -- Request Body: %s\n", string(apiReq.Body))
 	} else {
-		fmt.Printf("Request Body: nil\n")
+		fmt.Printf("Endpoint.go -- Request Body: nil\n")
 	}
 
 	return resp, nil

@@ -58,7 +58,7 @@ func LoadConfig(yamlFile embed.FS) (*Config) {
 
 	file, err := yamlFile.ReadFile("resources/config.yaml")
 	if err != nil {
-		fmt.Printf("Error - reading - config file: %v\n", err)
+		fmt.Printf("Config.go -- Error - reading - config file: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -71,7 +71,7 @@ func LoadConfig(yamlFile embed.FS) (*Config) {
 
 	// Unmarshal, which is their stupidass term for SERIALIZE or PARSE, the yaml file into the struct
 	if err := yaml.Unmarshal(file, &config); err != nil {
-		fmt.Printf("Error - parsing - config file: %v\n", err)
+		fmt.Printf("Config.go -- Error - parsing - config file: %v\n", err)
 		os.Exit(1)
 	}
 

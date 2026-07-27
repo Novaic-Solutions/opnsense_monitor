@@ -33,7 +33,7 @@ func CreateApiRequests(conf *config.Config, httpClients *[]*client.Client, respo
 	//-------------------------------------------------------------------
 	requests, err := client.PopulateApiRequests(conf)
 	if err != nil {
-		fmt.Printf("Error populating API requests: %v\n", err)
+		fmt.Printf("Opnsense_monitor.go -- Error populating API requests: %v\n", err)
 		return err
 	}
 
@@ -73,7 +73,7 @@ func main() {
 	// To populate the slice with the clients for each of the endpoints in the config file.
 	err := CreateApiRequests(conf, &httpClients, responseChannel)
 	if err != nil {
-		fmt.Printf("Error creating API requests: %v\n", err)
+		fmt.Printf("Opnsense_monitor.go -- Error creating API requests: %v\n", err)
 		return
 	}
 

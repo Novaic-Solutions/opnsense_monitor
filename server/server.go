@@ -28,7 +28,7 @@ func (serv Server) GatherData() string {
 	for _, cli := range serv.Clients {
 		// Here, eventually, gather the data from the database for each client
 		// and form the JSON response for the page.
-		fmt.Printf("Gathering data from client: %v\n", cli.ApiRequest.Endpoint)
+		fmt.Printf("Server.go -- Gathering data from client: %v\n", cli.ApiRequest.Endpoint)
 		go cli.Gather()
 		totalClient++
 	}
@@ -37,7 +37,7 @@ func (serv Server) GatherData() string {
 	for totalClient > 0 {
 		response := <-serv.ResponseChannel
 		if response.Data == nil {
-			fmt.Printf("Error: No data received from client for URI: %s\n", response.Uri)
+			fmt.Printf("Server.go -- Error: No data received from client for URI: %s\n", response.Uri)
 			totalClient--
 			continue
 		}
@@ -47,7 +47,7 @@ func (serv Server) GatherData() string {
 
 	responseBytes, err := json.Marshal(dataString)
 	if err != nil {
-		fmt.Printf("Error marshaling data to JSON: %v\n", err)
+		fmt.Printf("Server.go -- Error marshaling data to JSON: %v\n", err)
 		return ""
 	}
 
@@ -78,8 +78,8 @@ func (serv Server) StartServer() {
 	addr := fmt.Sprintf("%s:%s", serv.Host, serv.Port)
 	
 	// Start the server and listen for incoming requests.
-	fmt.Printf("Starting server at %s\n", addr)
+	fmt.Printf("Server.go -- Starting server at %s\n", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		fmt.Printf("Error starting server: %v\n", err)
+		fmt.Printf("Server.go -- Error starting server: %v\n", err)
 	}
 }
