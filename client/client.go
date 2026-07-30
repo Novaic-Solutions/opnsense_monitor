@@ -32,43 +32,50 @@ type Caller interface {
 //----------------------------------------------------------------------------
 // Populate API Requests from Config
 //----------------------------------------------------------------------------
-func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
-	apiObj := make([]ApiRequest, 0, 100)
+// func PopulateApiRequests(conf *config.Config) (*[]ApiRequest, error) {
+	
+// 	//-------------------------------------------------------------------------------
+// 	// Create a slice of ApiRequest objects to hold the requests to be sent to the API endpoints.
+// 	//-------------------------------------------------------------------------------
+// 	apiObj := make([]ApiRequest, 0, 100)
 
-	for _, value := range conf.API.Endpoints {
+// 	//-------------------------------------------------------------------------------
+// 	// Loop through the endpoints in the config and create an ApiRequest object for each one.
+// 	//-------------------------------------------------------------------------------
+// 	for _, value := range conf.API.Endpoints {
 
-		endp := value.Request.RequestBody.(map[string]interface{})
+// 		endp := value.Request.RequestBody.(map[string]interface{})
 
-		bytes, err := json.Marshal(endp)
-		if err != nil {
-			fmt.Printf("Client.go -- Error marshaling to JSON: %v", err)
-		}
+// 		bytes, err := json.Marshal(endp)
+// 		if err != nil {
+// 			fmt.Printf("Client.go -- Error marshaling to JSON: %v", err)
+// 		}
 
-		//-------------------------------------------------------------------------------------
-		// Prevents the body being sent as an empty JSON object when it is not needed for the request.
-		// This should help prevent 400 errors.
-		//-------------------------------------------------------------------------------------
-		if len(endp) == 0 {
-			bytes = nil
-		}
+// 		//-------------------------------------------------------------------------------------
+// 		// Prevents the body being sent as an empty JSON object when it is not needed for the request.
+// 		// This should help prevent 400 errors.
+// 		//-------------------------------------------------------------------------------------
+// 		if len(endp) == 0 {
+// 			bytes = nil
+// 		}
 
-		newReq := ApiRequest{
-			Method: value.Request.Method,
-			Endpoint: conf.API.BaseURL + value.Request.Uri,
-			ResponseType: value.Request.ResponseType,
-			Username: conf.API.ApiKey,
-			Password: conf.API.ApiSecret,
-			Body: bytes,
-		}
-		apiObj = append(apiObj, newReq)
-	}
+// 		newReq := ApiRequest{
+// 			Method: value.Request.Method,
+// 			Endpoint: conf.API.BaseURL + value.Request.Uri,
+// 			ResponseType: value.Request.ResponseType,
+// 			Username: conf.API.ApiKey,
+// 			Password: conf.API.ApiSecret,
+// 			Body: bytes,
+// 		}
+// 		apiObj = append(apiObj, newReq)
+// 	}
 
-	if len(apiObj) == 0 {
-		return nil, fmt.Errorf("Client.go -- No API requests found in configuration")
-	}
+// 	if len(apiObj) == 0 {
+// 		return nil, fmt.Errorf("Client.go -- No API requests found in configuration")
+// 	}
 
-	return &apiObj, nil
-}
+// 	return &apiObj, nil
+// }
 
 //----------------------------------------------------------------------------
 // Create new client

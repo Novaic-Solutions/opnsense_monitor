@@ -25,26 +25,26 @@ var yamlFile embed.FS
 //------------------------------------------------------------------------------
 //	 Create the request objects for each of the API endpoints
 //------------------------------------------------------------------------------
-func CreateApiRequests(conf *config.Config, httpClients *[]*client.Client, responseChannel chan client.EndpointResponse) error {
-	//-------------------------------------------------------------------
-	//     Create the request objects for each of the API endpoints
-	//     then create a client for each of the requests and start 
-	// 	   monitoring
-	//-------------------------------------------------------------------
-	requests, err := client.PopulateApiRequests(conf)
-	if err != nil {
-		fmt.Printf("Opnsense_monitor.go -- Error populating API requests: %v\n", err)
-		return err
-	}
+// func CreateApiRequests(conf *config.Config, httpClients *[]*client.Client, responseChannel chan client.EndpointResponse) error {
+// 	//-------------------------------------------------------------------
+// 	//     Create the request objects for each of the API endpoints
+// 	//     then create a client for each of the requests and start 
+// 	// 	   monitoring
+// 	//-------------------------------------------------------------------
+// 	requests, err := client.PopulateApiRequests(conf)
+// 	if err != nil {
+// 		fmt.Printf("Opnsense_monitor.go -- Error populating API requests: %v\n", err)
+// 		return err
+// 	}
 
-	//-------------------------------------------------------------------
-	//    Create a client for each of the requests and start monitoring
-	//-------------------------------------------------------------------
-	for _, req := range *requests {
-		*httpClients = append(*httpClients, &client.Client{ApiRequest: &req, ResponseChannel: responseChannel})
-	}
-	return nil
-}
+// 	//-------------------------------------------------------------------
+// 	//    Create a client for each of the requests and start monitoring
+// 	//-------------------------------------------------------------------
+// 	for _, req := range *requests {
+// 		*httpClients = append(*httpClients, &client.Client{ApiRequest: &req, ResponseChannel: responseChannel})
+// 	}
+// 	return nil
+// }
 
 //----------------------------------------------------------------------------
 //	Initialize the application, load the configuration, create the API requests,
@@ -60,7 +60,7 @@ func init() {
 //----------------------------------------------------------------------------
 func main() {
 	// Create a slice to hold the clients. One for each endpoint in the config file.
-	httpClients := make([]*client.Client, 0, 100)
+	httpClients := make([]*client.Caller, 0, 100)
 	responseChannel := make(chan client.EndpointResponse, 100)
 
 	fmt.Println("Starting application...")
@@ -71,11 +71,11 @@ func main() {
 
 	// Send the client slice and the response channel to CreateApiRequests
 	// To populate the slice with the clients for each of the endpoints in the config file.
-	err := CreateApiRequests(conf, &httpClients, responseChannel)
-	if err != nil {
-		fmt.Printf("Opnsense_monitor.go -- Error creating API requests: %v\n", err)
-		return
-	}
+	// err := CreateApiRequests(conf, &httpClients, responseChannel)
+	// if err != nil {
+	// 	fmt.Printf("Opnsense_monitor.go -- Error creating API requests: %v\n", err)
+	// 	return
+	// }
 
 	//-------------------------------------------------------------------
 	//	   Start client jobs for retrieving json from api endpoints
