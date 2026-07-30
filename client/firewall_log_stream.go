@@ -29,6 +29,12 @@ func NewFirewallLogStreamClient(apiRequest *ApiRequest, responseChannel chan End
 func (cli *FirewallLogStreamClient) Gather(token,limit string) {
 
 	formattedParams, _ := formatter.Format(cli.ApiRequest.Request.Params )
+	// initialString := "https://1.1.1.1:666/api/diagnostics/firewall/log/?digest={digest}&limit={limit}"
+	// digest := ""
+	// formattedInitString, _ := formatter.Format(initialString, formatter.Named{
+	// 	"digest": digest,
+	// 	"limit":  "10000",
+	// })
 	
 
 }
