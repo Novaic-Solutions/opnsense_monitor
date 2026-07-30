@@ -81,6 +81,7 @@ func NewClient(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *C
 }
 
 //----------------------------------------------------------------------------
+// Client Gather function
 // Send request to API endpoint and gather response, then place on the 
 // channel for processing by the server.
 //----------------------------------------------------------------------------
@@ -136,4 +137,3 @@ func (cli *Client) Gather() {
 	}
 
 }
-

@@ -6,13 +6,11 @@ import (
 	"bytes"
 	"time"
 	"fmt"
+	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
 type ApiRequest struct {
-	Method string
-	Endpoint string
-	ResponseType string
-	Body []byte
+	Request Endpoint
 	Username string
 	Password string
 }
