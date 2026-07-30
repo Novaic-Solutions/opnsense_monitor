@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"gopkg.in/yaml.v3"
+	"github.com/Novaic-Solutions/opnsense_monitor/client"
 )
 
 //----------------------------------------------------------------------
@@ -30,23 +31,7 @@ type Config struct {
 	} `yaml:"api"`
 }
 
-//----------------------------------------------------------------------
-// Endpoint represents a single API Endpoint to call and the 
-// data required to perform the request.
-//----------------------------------------------------------------------
-type RequestObj struct {
-	Uri string `yaml:"uri"`
-	Method string `yaml:"method"`
-	ResponseType string `yaml:"response_type"`
-	Params string `yaml:"params"`
-	RequestBody any `yaml:"request_body"`
-}
 
-type Endpoint struct {
-	Request RequestObj `yaml:"request"`
-	Type string `yaml:"type"`
-	ResponseObjType string `yaml:"response_obj_type"`
-}
 
 
 //----------------------------------------------------------------------
@@ -54,7 +39,9 @@ type Endpoint struct {
 //----------------------------------------------------------------------
 func LoadConfig(yamlFile embed.FS) (*Config) {
 
+	//----------------------
 	// Read file
+	//----------------------
 	fmt.Printf("Reading config file...\n")
 
 	file, err := yamlFile.ReadFile("resources/config.yaml")
@@ -63,14 +50,14 @@ func LoadConfig(yamlFile embed.FS) (*Config) {
 		os.Exit(1)
 	}
 
-	// // print the data from the config.yaml file
-	// fmt.Printf("The data from the config.yaml file: %s\n", string(file))
-	// fmt.Printf("The type of the data from the config.yaml file: %s\n", reflect.TypeOf(file))
-
-	// Create Database struct
+	//----------------------
+	// Create Config struct
+	//----------------------
 	config := Config{}
 
+	//--------------------------------------------------------------------------------------------------
 	// Unmarshal, which is their stupidass term for SERIALIZE or PARSE, the yaml file into the struct
+	//--------------------------------------------------------------------------------------------------
 	if err := yaml.Unmarshal(file, &config); err != nil {
 		fmt.Printf("Config.go -- Error - parsing - config file: %v\n", err)
 		os.Exit(1)

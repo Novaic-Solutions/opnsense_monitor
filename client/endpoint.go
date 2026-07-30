@@ -9,12 +9,6 @@ import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
-type ApiRequest struct {
-	Request Endpoint
-	Username string
-	Password string
-}
-
 //------------------------------------------------------------------------------
 // Create TLS Config
 //------------------------------------------------------------------------------

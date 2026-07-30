@@ -8,6 +8,24 @@ import (
 	"time"
 )
 
+//----------------------------------------------------------------------
+// Endpoint represents a single API Endpoint to call and the 
+// data required to perform the request.
+//----------------------------------------------------------------------
+type RequestObj struct {
+	Uri string `yaml:"uri"`
+	Method string `yaml:"method"`
+	ResponseType string `yaml:"response_type"`
+	Params string `yaml:"params"`
+	RequestBody any `yaml:"request_body"`
+}
+
+type Endpoint struct {
+	Request RequestObj `yaml:"request"`
+	Type string `yaml:"type"`
+	ResponseObjType string `yaml:"response_obj_type"`
+}
+
 //----------------------------------------------------------------------------
 //  Used to store the response from the API endpoint and send it through
 //  a channel to the server for processing and storage in the database.
@@ -18,12 +36,18 @@ type EndpointResponse struct {
 	Data map[string]interface{}
 }
 
+type ApiRequest struct {
+	Request Endpoint
+	Username string
+	Password string
+}
+
 type Client struct {
 	ApiRequest *ApiRequest
 	ResponseChannel chan EndpointResponse
 }
 
-// TODO: Use an interface for the client so that the server can use either a Client or a StreamClient,
+// 	TODO: Use an interface for the client so that the server can use either a Client or a StreamClient,
 //  depending on the type of endpoint being monitored.
 type Caller interface {
 	Gather()
@@ -126,9 +150,6 @@ func (cli *Client) Gather() {
 		fmt.Println("---------------------------------------------------")
 		return
 	}
-
-	// fmt.Printf("Client.go -- Response Status: %s\n", resp.Status)
-	// fmt.Printf("Client.go -- Response Body: %s\n", string(body))
 
 	// Add logic here to process the response and send it through the channel
 	// for further processing

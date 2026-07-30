@@ -45,7 +45,7 @@ api:
           rowCount: -1
       response_obj_type: "FirewallSession"
       type: "firewall"
-    
+
     - request:
         uri: "/api/diagnostics/firewall/query_states"
         method: "POST"
@@ -75,4 +75,4 @@ api:
         params: "digest={digest}&limit={limit}"
         request_body: {}
       response_obj_type: "FirewallLogEntry"
-      type: "firewall"
+      type: "firewall_log_stream"
