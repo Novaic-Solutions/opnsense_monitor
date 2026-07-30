@@ -27,7 +27,7 @@ type Config struct {
 		ApiKey    string `yaml:"api_key"`
 		ApiSecret string `yaml:"api_secret"`
 		BaseURL   string `yaml:"base_url"`
-		Endpoints []Endpoint `yaml:"endpoints"`
+		Endpoints []client.Endpoint `yaml:"endpoints"`
 	} `yaml:"api"`
 }
 

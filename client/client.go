@@ -37,22 +37,17 @@ type EndpointResponse struct {
 }
 
 type ApiRequest struct {
-	Request Endpoint
+	Endpoint Endpoint
 	Username string
 	Password string
 }
 
-type Client struct {
-	ApiRequest *ApiRequest
-	ResponseChannel chan EndpointResponse
+type Caller interface {
+	Call()
 }
 
-// 	TODO: Use an interface for the client so that the server can use either a Client or a StreamClient,
-//  depending on the type of endpoint being monitored.
-type Caller interface {
-	Gather()
-}
-    
+
+
 //----------------------------------------------------------------------------
 // Populate API Requests from Config
 //----------------------------------------------------------------------------
@@ -100,68 +95,3 @@ type Caller interface {
 
 // 	return &apiObj, nil
 // }
-
-//----------------------------------------------------------------------------
-// Create new client
-//----------------------------------------------------------------------------
-func NewClient(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *Client {
-	return &Client{
-		ApiRequest: apiRequest,
-		ResponseChannel: responseChannel,
-	}
-}
-
-//----------------------------------------------------------------------------
-// Client Gather function
-// Send request to API endpoint and gather response, then place on the 
-// channel for processing by the server.
-//----------------------------------------------------------------------------
-func (cli *Client) Gather() {
-	resp, err := cli.ApiRequest.SendRequest()
-
-	if err != nil {
-		fmt.Printf("Client.go -- Error sending request: %v", err)
-		return 
-	}
-	defer resp.Body.Close()
-
-
-	//----------------------------------------------------------------------------
-	// Read the response body
-	//----------------------------------------------------------------------------
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Client.go -- Error reading response body: %v", err)
-		return
-	}
-
-
-	//----------------------------------------------------------------------------
-	// Create dataResult map to hold the response data
-	// in a format that can hold the data from the body after it is 
-	// serialized from JSON.
-	//----------------------------------------------------------------------------
-	var dataResult map[string]interface{}
-	if err := json.Unmarshal(body, &dataResult); err != nil {
-		fmt.Println("---------------------------------------------------")
-		fmt.Printf("Client.go -- Error unmarshaling response body: %v\n", err)
-		fmt.Printf("Client.go -- URI: %s\n", cli.ApiRequest.Endpoint)
-		fmt.Printf("Client.go -- Response Body: %s\n", string(body))
-		fmt.Println("---------------------------------------------------")
-		return
-	}
-
-	// Add logic here to process the response and send it through the channel
-	// for further processing
-
-	//---------------------------------------------------------------------
-	// Put the response data on the channel for processing 
-	// by the server.
-	//---------------------------------------------------------------------
-	cli.ResponseChannel <- EndpointResponse{
-		Uri: cli.ApiRequest.Endpoint,
-		Timestamp: time.Now().Format(time.RFC3339),
-		Data: dataResult,
-	}
-
-}
