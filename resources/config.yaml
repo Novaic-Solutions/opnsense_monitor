@@ -24,7 +24,7 @@ api:
           rowCount: -1
           resolve: "no"
       response_obj_type: "ArpTableEntry"
-      type: "interface"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/interface/getInterfaceStatistics"
@@ -33,7 +33,7 @@ api:
         params: ""
         request_body: {}
       response_obj_type: "IFaceStatistics"
-      type: "interface"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/firewall/query_pf_top"
@@ -44,7 +44,7 @@ api:
           current: 1
           rowCount: -1
       response_obj_type: "FirewallSession"
-      type: "firewall"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/firewall/query_states"
@@ -55,7 +55,7 @@ api:
           current: 1
           rowCount: -1
       response_obj_type: "FirewallState"
-      type: "firewall"
+      type: "request"
 
 # Statistics for the firewall interfaces.
     - request:
@@ -65,7 +65,7 @@ api:
         params: ""
         request_body: {}
       response_obj_type: "IfaceTraffic"
-      type: "firewall"
+      type: "request"
 
 # Live stream of firewall logs.
     - request:

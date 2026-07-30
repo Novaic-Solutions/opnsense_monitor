@@ -32,7 +32,7 @@ type Config struct {
 }
 
 
-
+//TODO: GET THE CONFIG LOADING THE OBJECTS NEXT.
 
 //----------------------------------------------------------------------
 //       LoadConfig - Load the config.yaml file into a Config struct
