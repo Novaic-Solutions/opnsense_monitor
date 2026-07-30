@@ -118,7 +118,7 @@ func NewClient(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *C
 //----------------------------------------------------------------------------
 func (cli *Client) Gather() {
 	resp, err := cli.ApiRequest.SendRequest()
-	
+
 	if err != nil {
 		fmt.Printf("Client.go -- Error sending request: %v", err)
 		return 
