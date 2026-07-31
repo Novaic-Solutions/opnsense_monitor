@@ -1,12 +1,9 @@
 package client
 
-// import (
-// 	"fmt"
-// 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-// 	"time"
-// 	"io"
-// 	"encoding/json"
-// )
+import (
+	"net/http"
+	"gitlab.com/tymonx/go-formatter/formatter"
+)
 
 type Request struct {
 	ApiRequest *ApiRequest
@@ -23,9 +20,27 @@ func NewRequest(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *
 	}
 }
 
+func (req *Request) CreateUrl() string {
+	url := req.ApiRequest.Endpoint.Request.Uri
+}
+
 
 func (req *Request) Call() {
+	var req *http.Request
+	var err error
 
+	url := req.ApiRequest.Endpoint.Request.Uri
+
+	if len(req.ApiRequest.Endpoint.Request.Params) > 0 {
+		formattedParams, _
+		// 	formattedParams, _ := formatter.Format(cli.ApiRequest.Request.Params )
+		// initialString := "https://1.1.1.1:666/api/diagnostics/firewall/log/?digest={digest}&limit={limit}"
+		// digest := ""
+		// formattedInitString, _ := formatter.Format(initialString, formatter.Named{
+		// 	"digest": digest,
+		// 	"limit":  "10000",
+		// })
+	
 }
 // //----------------------------------------------------------------------------
 // // Client Gather function

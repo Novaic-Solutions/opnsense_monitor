@@ -18,7 +18,7 @@ api:
         uri: "/api/diagnostics/interface/search_arp/"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: 
           current: 1
           rowCount: -1
@@ -30,7 +30,7 @@ api:
         uri: "/api/diagnostics/interface/getInterfaceStatistics"
         method: "GET"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: {}
       response_obj_type: "IFaceStatistics"
       type: "request"
@@ -39,7 +39,7 @@ api:
         uri: "/api/diagnostics/firewall/query_pf_top"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body:
           current: 1
           rowCount: -1
@@ -50,7 +50,7 @@ api:
         uri: "/api/diagnostics/firewall/query_states"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body:
           current: 1
           rowCount: -1
@@ -62,7 +62,7 @@ api:
         uri: "/api/diagnostics/firewall/pf_statistics/interfaces"
         method: "GET"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: {}
       response_obj_type: "IfaceTraffic"
       type: "request"
@@ -72,7 +72,9 @@ api:
         uri: "/api/diagnostics/firewall/log/"
         method: "GET"
         response_type: "application/json"
-        params: "digest={digest}&limit={limit}"
+        params: 
+          digest: ""
+          limit: 10000
         request_body: {}
       response_obj_type: "FirewallLogEntry"
       type: "firewall_log_stream"
