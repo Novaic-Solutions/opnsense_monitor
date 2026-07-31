@@ -43,9 +43,11 @@ func (apiReq *ApiRequest) SendRequest() (*http.Response, error) {
 	var req *http.Request
 	var err error
 
+	//---------------------------------------------------------------------------
 	// Create a new request object with the appropriate method, endpoint, and body.
 	// If the body is empty, set it to nil to prevent sending an empty JSON object.
 	// This should help prevent 400 errors from the API.
+	//---------------------------------------------------------------------------
 	if len(apiReq.Body) == 0 {
 		req, err = http.NewRequest(apiReq.Method, apiReq.Endpoint, nil)
 	} else {
@@ -61,14 +63,26 @@ func (apiReq *ApiRequest) SendRequest() (*http.Response, error) {
 		return nil, err
 	}
 
+	//---------------------------------------------------------------------------
 	// Set the basic auth for the request using
 	// the token created in opnsense.
+	//---------------------------------------------------------------------------
+	req.SetBasicAuth(apiReq.Username, apiReq.Password)
+	
+	//---------------------------------------------------------------------------
+	// Set the basic auth for the request using
+	// the token created in opnsense.
+	//---------------------------------------------------------------------------
 	req.SetBasicAuth(apiReq.Username, apiReq.Password)
 
+	//----------------------------------------------------------------------------
 	// Create the HTTP client
+	//----------------------------------------------------------------------------
 	client := CreateHTTPClient(30)
 
+	//----------------------------------------------------------------------------
 	// Send the request and return the response
+	//----------------------------------------------------------------------------
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

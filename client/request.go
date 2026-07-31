@@ -29,7 +29,7 @@ func (req *Request) Call() {
 	var req *http.Request
 	var err error
 
-	url := req.ApiRequest.Endpoint.Request.Uri
+	url := req.ApiRequest.Endpoint.Request.Urir
 
 	if len(req.ApiRequest.Endpoint.Request.Params) > 0 {
 		formattedParams, _ := formatter.Format(req.ApiRequest.Endpoint.Request.Params)
