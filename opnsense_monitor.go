@@ -4,8 +4,8 @@ import (
 	"embed"
 	"fmt"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	"github.com/Novaic-Solutions/opnsense_monitor/client"
-	"github.com/Novaic-Solutions/opnsense_monitor/server"
+	// "github.com/Novaic-Solutions/opnsense_monitor/client"
+	// "github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
 //----------------------------------------------------------------------------
@@ -60,14 +60,15 @@ func init() {
 //----------------------------------------------------------------------------
 func main() {
 	// Create a slice to hold the clients. One for each endpoint in the config file.
-	httpClients := make([]*client.Caller, 0, 100)
-	responseChannel := make(chan client.EndpointResponse, 100)
+	// httpClients := make([]*client.Caller, 0, 100)
+	// responseChannel := make(chan client.EndpointResponse, 100)
 
 	fmt.Println("Starting application...")
 	
 	// Load the configuration from the embedded config.yaml file.
 	conf := config.LoadConfig(yamlFile)
 	fmt.Printf("Loaded config: %+v\n", conf)
+
 
 	// Send the client slice and the response channel to CreateApiRequests
 	// To populate the slice with the clients for each of the endpoints in the config file.
@@ -86,18 +87,18 @@ func main() {
 	//-------------------------------------------------------------------
 	//     Create the web server to serve the json data to the web page
 	//-------------------------------------------------------------------
-	server := &server.Server{
-		Port:            conf.Server.Port,
-		Host:            conf.Server.Host,
-		Conf:            conf,
-		Clients:         httpClients,
-		ResponseChannel: responseChannel,
-	}
+	// server := &server.Server{
+	// 	Port:            conf.Server.Port,
+	// 	Host:            conf.Server.Host,
+	// 	Conf:            conf,
+	// 	Clients:         httpClients,
+	// 	ResponseChannel: responseChannel,
+	// }
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
 	//-------------------------------------------------------------------
-	server.StartServer()
+	// server.StartServer()
 }
 
 

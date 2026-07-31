@@ -4,40 +4,41 @@ import (
 	"embed"
 	"fmt"
 	"os"
-	"gopkg.in/yaml.v3"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
+	"gopkg.in/yaml.v3"
 )
 
-//----------------------------------------------------------------------
-//       Structs for the config.yaml file objects
-//----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+//
+//	Structs for the config.yaml file objects
+//
+// ----------------------------------------------------------------------
 type Config struct {
 	Database struct {
-		Host	 string `yaml:"host"`
-		Port	 int    `yaml:"port"`
-		User	 string `yaml:"user"`
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		User     string `yaml:"user"`
 		Password string `yaml:"password"`
-		Name	 string `yaml:"name"`
+		Name     string `yaml:"name"`
 	} `yaml:"database"`
 	Server struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
 	} `yaml:"server"`
 	API struct {
-		ApiKey    string `yaml:"api_key"`
-		ApiSecret string `yaml:"api_secret"`
-		BaseURL   string `yaml:"base_url"`
+		ApiKey    string            `yaml:"api_key"`
+		ApiSecret string            `yaml:"api_secret"`
+		BaseURL   string            `yaml:"base_url"`
 		Endpoints []client.Endpoint `yaml:"endpoints"`
 	} `yaml:"api"`
 }
 
-
-//TODO: GET THE CONFIG LOADING THE OBJECTS NEXT.
-
-//----------------------------------------------------------------------
-//       LoadConfig - Load the config.yaml file into a Config struct
-//----------------------------------------------------------------------
-func LoadConfig(yamlFile embed.FS) (*Config) {
+// ----------------------------------------------------------------------
+//
+//	LoadConfig - Load the config.yaml file into a Config struct
+//
+// ----------------------------------------------------------------------
+func LoadConfig(yamlFile embed.FS) *Config {
 
 	//----------------------
 	// Read file

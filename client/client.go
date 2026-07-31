@@ -1,17 +1,23 @@
 package client
 
-import (
-	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	"fmt"
-	"encoding/json"
-	"io"
-	"time"
-)
+// import (
+// 	"github.com/Novaic-Solutions/opnsense_monitor/config"
+// 	"fmt"
+// 	"encoding/json"
+// 	"io"
+// 	"time"
+// )
 
 //----------------------------------------------------------------------
 // Endpoint represents a single API Endpoint to call and the 
 // data required to perform the request.
 //----------------------------------------------------------------------
+type Endpoint struct {
+	Request RequestObj `yaml:"request"`
+	Type string `yaml:"type"`
+	ResponseObjType string `yaml:"response_obj_type"`
+}
+
 type RequestObj struct {
 	Uri string `yaml:"uri"`
 	Method string `yaml:"method"`
@@ -20,11 +26,6 @@ type RequestObj struct {
 	RequestBody any `yaml:"request_body"`
 }
 
-type Endpoint struct {
-	Request RequestObj `yaml:"request"`
-	Type string `yaml:"type"`
-	ResponseObjType string `yaml:"response_obj_type"`
-}
 
 //----------------------------------------------------------------------------
 //  Used to store the response from the API endpoint and send it through
