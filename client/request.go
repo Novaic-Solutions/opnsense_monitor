@@ -32,7 +32,7 @@ func (req *Request) Call() {
 	url := req.ApiRequest.Endpoint.Request.Uri
 
 	if len(req.ApiRequest.Endpoint.Request.Params) > 0 {
-		formattedParams, _
+		formattedParams, _ := formatter.Format(req.ApiRequest.Endpoint.Request.Params)
 		// 	formattedParams, _ := formatter.Format(cli.ApiRequest.Request.Params )
 		// initialString := "https://1.1.1.1:666/api/diagnostics/firewall/log/?digest={digest}&limit={limit}"
 		// digest := ""
