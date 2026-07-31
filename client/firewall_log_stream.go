@@ -22,6 +22,10 @@ func NewFirewallLogStreamClient(apiRequest *ApiRequest, responseChannel chan End
 }
 
 
+func (req *FirewallLogStreamClient) Call() {
+	
+}
+
 // //----------------------------------------------------------------------------
 // // Stream Client Gather function
 // // Send request to API endpoint and gather response, then place on the

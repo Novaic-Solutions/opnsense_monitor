@@ -23,6 +23,10 @@ func NewRequest(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *
 	}
 }
 
+
+func (req *Request) Call() {
+
+}
 // //----------------------------------------------------------------------------
 // // Client Gather function
 // // Send request to API endpoint and gather response, then place on the 

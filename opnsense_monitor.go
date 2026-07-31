@@ -60,12 +60,8 @@ func init() {
 //----------------------------------------------------------------------------
 func main() {
 
-	//-------------------------------------------------------------------------------
-	// Create a slice to hold the clients. One for each endpoint in the config file.
-	//-------------------------------------------------------------------------------
-	requestClients := make([]*client.Caller, 0, 100)
-	//responseChannel := make(chan client.EndpointResponse, 100)
-
+	
+	responseChannel := make(chan client.EndpointResponse, 100)
 	fmt.Println("Starting application...")
 	
 	//-------------------------------------------------------------------------------
@@ -74,6 +70,11 @@ func main() {
 	conf := config.LoadConfig(yamlFile)
 	fmt.Printf("Loaded config: %+v\n", conf)
 
+	//-------------------------------------------------------------------------------
+	// Create a slice to hold the clients. One for each endpoint in the config file.
+	//-------------------------------------------------------------------------------
+	requestClients, _ := client.PopulateApiRequests(conf.API.Endpoints, responseChannel, conf.API.ApiKey, conf.API.ApiSecret)
+	fmt.Printf("Populated API requests: %+v\n", requestClients)
 
 	//-------------------------------------------------------------------------------
 	// Populate the requestClient slice with a Caller for each of the endpoints
