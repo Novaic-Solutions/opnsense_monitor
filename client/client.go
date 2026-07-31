@@ -47,6 +47,28 @@ type Caller interface {
 	Call()
 }
 
+//----------------------------------------------------------------------------
+//  Create a new client for the given endpoint and return it.
+//----------------------------------------------------------------------------
+func NewCaller(reqType string, apiRequest *ApiRequest, responseChannel chan EndpointResponse) Caller {
+	switch reqType {
+	case "request":
+		return NewRequest(apiRequest, responseChannel)
+	case "firewall_log_stream":
+		return NewFirewallLogStreamClient(apiRequest, responseChannel)
+	default:
+		fmt.Printf("Client.go -- Unknown client type: %s\n", reqType)
+		return nil
+	}
+}
+
+//---------------------------------------------------------------------------
+//  Populate the slice of clients with a client 
+//  for each endpoint in the config file.
+//---------------------------------------------------------------------------
+func PopulateApiRequests(conf *config.Config) ([]*Caller, error) {
+
+
 
 
 //----------------------------------------------------------------------------

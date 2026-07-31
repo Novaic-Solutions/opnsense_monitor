@@ -28,7 +28,7 @@ package client
 // // Send request to API endpoint and gather response, then place on the 
 // // channel for processing by the server.
 // //----------------------------------------------------------------------------
-// func (req *Request) Gather() {
+// func (req *Request) Call() {
 // 	resp, err := req.ApiRequest.SendRequest()
 
 // 	if err != nil {
