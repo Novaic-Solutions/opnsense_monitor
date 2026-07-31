@@ -8,20 +8,20 @@ package client
 // 	"encoding/json"
 // )
 
-// type Request struct {
-// 	ApiRequest *ApiRequest
-// 	ResponseChannel chan EndpointResponse
-// }
+type Request struct {
+	ApiRequest *ApiRequest
+	ResponseChannel chan EndpointResponse
+}
 
-// //----------------------------------------------------------------------------
-// // Create new client
-// //----------------------------------------------------------------------------
-// func NewRequest(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *Request {
-// 	return &Request{
-// 		ApiRequest: apiRequest,
-// 		ResponseChannel: responseChannel,
-// 	}
-// }
+//----------------------------------------------------------------------------
+// Create new client
+//----------------------------------------------------------------------------
+func NewRequest(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *Request {
+	return &Request{
+		ApiRequest: apiRequest,
+		ResponseChannel: responseChannel,
+	}
+}
 
 // //----------------------------------------------------------------------------
 // // Client Gather function
