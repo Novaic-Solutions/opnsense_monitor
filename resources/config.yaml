@@ -47,7 +47,7 @@ api:
       type: "request"
 
     - request:
-        uri: "/api/diagnostics/firewall/query_states"
+        uri: "/api/diagnostics/firewall/query_states"3
         method: "POST"
         response_type: "application/json"
         params: {}

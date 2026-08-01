@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"os"
-	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,8 +28,47 @@ type Config struct {
 		ApiKey    string            `yaml:"api_key"`
 		ApiSecret string            `yaml:"api_secret"`
 		BaseURL   string            `yaml:"base_url"`
-		Endpoints []client.Endpoint `yaml:"endpoints"`
+		Endpoints []Endpoint `yaml:"endpoints"`
 	} `yaml:"api"`
+}
+
+//----------------------------------------------------------------------
+// Endpoint represents a single API Endpoint to call and the 
+// data required to perform the request.
+//----------------------------------------------------------------------
+type Endpoint struct {
+	Request RequestObj `yaml:"request"`
+	Type string `yaml:"type"`
+	ResponseObjType string `yaml:"response_obj_type"`
+}
+
+type RequestObj struct {
+	Uri string `yaml:"uri"`
+	Method string `yaml:"method"`
+	ResponseType string `yaml:"response_type"`
+	Params string `yaml:"params"`
+	RequestBody any `yaml:"request_body"`
+}
+
+type EndpointResponse struct {
+	Uri string
+	Timestamp string
+	ResponseDataType string
+	Data any
+}
+
+type ApiRequest struct {
+	Url string
+	Uri string
+	Method string
+	Params string
+	Body []byte
+	ResponseType string
+	Username string
+	Password string
+	TypeRequest string
+	ResponseObjType string
+	ResponseChannel chan EndpointResponse
 }
 
 // ----------------------------------------------------------------------
