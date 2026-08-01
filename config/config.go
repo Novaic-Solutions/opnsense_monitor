@@ -3,6 +3,7 @@ package config
 import (
 	"embed"
 	"fmt"
+	"encoding/json"
 	"os"
 	"gopkg.in/yaml.v3"
 )
@@ -103,4 +104,48 @@ func LoadConfig(yamlFile embed.FS) *Config {
 	}
 
 	return &config
+}
+
+
+//---------------------------------------------------------------------------
+//  Populate the slice of clients with a client 
+//  for each endpoint in the config file.
+//---------------------------------------------------------------------------
+func CreateApiRequests(conf *Config, responseChannel chan EndpointResponse) ([]*ApiRequest, error) {
+	var apiRequests []*ApiRequest
+
+	for _, endpoint := range conf.API.Endpoints {
+
+		endp := endpoint.Request.RequestBody.(map[string]interface{})
+
+		bytes, err := json.Marshal(endp)
+		if err != nil {
+			fmt.Printf("Config.go -- Error marshaling to JSON: %v", err)
+		}
+
+		// Prevents the body being sent as an empty JSON object when it is not needed for the request.
+		// This should help prevent 400 errors.
+		if len(endp) == 0 {
+			bytes = nil
+		}
+
+		apiRequest := &ApiRequest{
+			Url: conf.API.BaseURL,
+			Uri: endpoint.Request.Uri,
+			Method: endpoint.Request.Method,
+			Params: endpoint.Request.Params,
+			Body: bytes,
+			ResponseType: endpoint.Request.ResponseType,
+			Username: conf.API.ApiKey,
+			Password: conf.API.ApiSecret,
+			TypeRequest: endpoint.Type,
+			ResponseObjType: endpoint.ResponseObjType,
+			ResponseChannel: responseChannel,
+		}
+
+
+		apiRequests = append(apiRequests, apiRequest)
+	}
+
+	return apiRequests, nil
 }

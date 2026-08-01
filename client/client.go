@@ -32,21 +32,3 @@ func NewCaller(reqType string, apiRequest *ApiRequest, responseChannel chan Endp
 	}
 }
 
-//---------------------------------------------------------------------------
-//  Populate the slice of clients with a client 
-//  for each endpoint in the config file.
-//---------------------------------------------------------------------------
-func PopulateApiRequests(endPoints []Endpoint, responseChannel chan EndpointResponse, usr, pwd string) ([]Caller, error) {
-	ClientCallers := make([]Caller, 0, len(endPoints))
-
-	for _, endP := range endPoints {
-		apiReq := ApiRequest{
-			Endpoint: endP,
-			Username: usr,
-			Password: pwd,
-		}
-		client := NewCaller(endP.Type, &apiReq, responseChannel)
-		ClientCallers = append(ClientCallers, client)
-	}
-	return ClientCallers, nil
-}
