@@ -2,9 +2,8 @@ package client
 
 import (
 	"fmt"
+	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
-
-
 
 
 //----------------------------------------------------------------------------
@@ -20,14 +19,14 @@ type Caller interface {
 //----------------------------------------------------------------------------
 //  Create a new client for the given endpoint and return it.
 //----------------------------------------------------------------------------
-func NewCaller(reqType string, apiRequest *ApiRequest, responseChannel chan EndpointResponse) Caller {
-	switch reqType {
+func NewCaller(apiRequest *config.ApiRequest, responseChannel chan EndpointResponse) Caller {
+	switch apiRequest.TypeRequest {
 	case "request":
 		return NewRequest(apiRequest, responseChannel)
 	case "firewall_log_stream":
 		return NewFirewallLogStreamClient(apiRequest, responseChannel)
 	default:
-		fmt.Printf("Client.go -- Unknown client type: %s\n", reqType)
+		fmt.Printf("Client.go -- Unknown client type: %s\n", apiRequest.TypeRequest)
 		return nil
 	}
 }

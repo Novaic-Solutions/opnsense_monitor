@@ -20,9 +20,6 @@ func NewRequest(apiRequest *ApiRequest, responseChannel chan EndpointResponse) *
 	}
 }
 
-func (req *Request) CreateUrl() string {
-	url := req.ApiRequest.Endpoint.Request.Uri
-}
 
 
 func (req *Request) Call() {

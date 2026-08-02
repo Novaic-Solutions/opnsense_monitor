@@ -23,7 +23,7 @@ api:
           current: 1
           rowCount: -1
           resolve: "no"
-      response_obj_type: "ArpTableEntry"
+      response_obj_type: "ArpTableEntry".
       type: "request"
 
     - request:
@@ -47,7 +47,7 @@ api:
       type: "request"
 
     - request:
-        uri: "/api/diagnostics/firewall/query_states"3
+        uri: "/api/diagnostics/firewall/query_states"
         method: "POST"
         response_type: "application/json"
         params: {}
