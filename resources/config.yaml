@@ -23,7 +23,7 @@ api:
           current: 1
           rowCount: -1
           resolve: "no"
-      response_obj_type: "ArpTableEntry".
+      response_obj_type: "ArpTableEntry"
       type: "request"
 
     - request:

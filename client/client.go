@@ -19,7 +19,7 @@ type Caller interface {
 //----------------------------------------------------------------------------
 //  Create a new client for the given endpoint and return it.
 //----------------------------------------------------------------------------
-func NewCaller(apiRequest *config.ApiRequest, responseChannel chan EndpointResponse) Caller {
+func NewCaller(apiRequest *config.ApiRequest, responseChannel chan config.EndpointResponse) Caller {
 	switch apiRequest.TypeRequest {
 	case "request":
 		return NewRequest(apiRequest, responseChannel)

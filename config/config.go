@@ -143,7 +143,6 @@ func CreateApiRequests(conf *Config, responseChannel chan EndpointResponse) ([]*
 			ResponseChannel: responseChannel,
 		}
 
-
 		apiRequests = append(apiRequests, apiRequest)
 	}
 
