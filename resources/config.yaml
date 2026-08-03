@@ -74,7 +74,7 @@ api:
         response_type: "application/json"
         params: 
           digest: ""
-          limit: 10000
+          limit: "10000"
         request_body: {}
       response_obj_type: "FirewallLogEntry"
       type: "firewall_log_stream"

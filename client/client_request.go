@@ -1,9 +1,9 @@
 package client
 
 import (
-	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -57,14 +57,23 @@ func SendRequest(apiReq *http.Request) (*http.Response, error) {
 	fmt.Printf("Endpoint.go -- Request sent to %s with method %s\n", apiReq.URL, apiReq.Method)
 	fmt.Printf("Endpoint.go -- Response Status: %s\n", resp.Status)
 
-	// Check if the response body is empty and print it for debugging purposes.
-	if apiReq.Body != nil {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(apiReq.Body)
-		fmt.Printf("Endpoint.go -- Request Body: %s\n", buf.String())
-	} else {
-		fmt.Printf("Endpoint.go -- Request Body: nil\n")
+	return resp, nil
+}
+
+//----------------------------------------------------------------------------
+//	Get response body data from the API endpoint and return it as a byte slice.
+//----------------------------------------------------------------------------
+func GetResponseData(resp *http.Response) ([]byte, error) {
+	if resp == nil {
+		return nil, fmt.Errorf("response is nil")
+	}
+	defer resp.Body.Close()
+	
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading response body: %v", err)
+		return nil, err
 	}
 
-	return resp, nil
+	return body, nil
 }

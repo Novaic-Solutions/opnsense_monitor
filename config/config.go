@@ -47,7 +47,7 @@ type RequestObj struct {
 	Uri string `yaml:"uri"`
 	Method string `yaml:"method"`
 	ResponseType string `yaml:"response_type"`
-	Params string `yaml:"params"`
+	Params map[string]string `yaml:"params"`
 	RequestBody any `yaml:"request_body"`
 }
 
@@ -62,7 +62,7 @@ type ApiRequest struct {
 	Url string
 	Uri string
 	Method string
-	Params string
+	Params map[string]string
 	Body []byte
 	ResponseType string
 	Username string
