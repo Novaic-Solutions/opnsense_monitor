@@ -32,17 +32,17 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 
 	byteArr, err := GetResponseData(httpResp)
 	if err != nil {
-		fmt.Printf("Error getting response data: %v\n", err)
+		fmt.Printf("Firewall_Log_Stream.go -- Error getting response data: %v\n", err)
 		return response
 	}
-	
+
 	switch apiReq.ApiRequest.ResponseObjType {
 	case "FirewallLogEntry":
 		// This needs to loop over every entry in the response and create a FirewallLogEntry object for it,
 		// then append it to a slice of FirewallLogEntry objects. Finally, set the Data field of the
 		var logEntry data.FirewallLogEntry
 		if err := json.Unmarshal(byteArr, &logEntry); err != nil {
-			fmt.Printf("Error unmarshaling response body to FirewallLogEntry: %v\n", err)
+			fmt.Printf("Firewall_Log_Stream.go -- Error unmarshaling response body to FirewallLogEntry: %v\n", err)
 		}
 		response.Data = logEntry
 	}
@@ -85,7 +85,7 @@ func (apiReq *FirewallLogStreamClient) Call() {
 		req, err = http.NewRequest(apiReq.ApiRequest.Method, apiReq.ApiRequest.Url+apiReq.ApiRequest.Uri, bytes.NewBuffer(apiReq.ApiRequest.Body))
 		req.Header.Set("Content-Type", "application/json")
 	}
-	
+
 	if err != nil {
 		return
 	}
