@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"bytes"
 	"time"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
@@ -70,5 +71,70 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 
 
 func (req *Request) Call() {
+	var httpReq *http.Request
+	var err error
 
+	url := req.ApiRequest.Url + req.ApiRequest.Uri
+
+	//---------------------------------------------------------------------------
+	// If there are any parameters, append them to the URL as a query string.
+	//---------------------------------------------------------------------------
+	if len(req.ApiRequest.Params) > 0 {
+		url += "?"
+		for key, value := range req.ApiRequest.Params {
+			url += fmt.Sprintf("%s=%s&", key, value)
+		}
+		url = url[:len(url)-1] // Remove the trailing '&'
+	}
+
+
+	//---------------------------------------------------------------------------
+	// Create a new request object with the appropriate method, endpoint, and body.
+	// If the body is empty, set it to nil to prevent sending an empty JSON object.
+	// This should help prevent 400 errors from the API.
+	//---------------------------------------------------------------------------
+	if len(req.ApiRequest.Body) == 0 {
+		httpReq, err = http.NewRequest(req.ApiRequest.Method, req.ApiRequest.Url+req.ApiRequest.Uri, nil)
+	} else {
+		//---------------------------------------------------------------------
+		// Ensure only the content type for application/json is set IF
+		// the request body is not empty. This prevents 400 errors from the API.
+		//---------------------------------------------------------------------
+		httpReq, err = http.NewRequest(req.ApiRequest.Method, req.ApiRequest.Url+req.ApiRequest.Uri, bytes.NewBuffer(req.ApiRequest.Body))
+		httpReq.Header.Set("Content-Type", "application/json")
+	}
+
+	if err != nil {
+		return
+	}
+
+	//---------------------------------------------------------------------------
+	// Set the basic auth for the request using
+	// the token created in opnsense.
+	//---------------------------------------------------------------------------
+	httpReq.SetBasicAuth(req.ApiRequest.Username, req.ApiRequest.Password)
+	
+	//---------------------------------------------------------------------------
+	// Set the basic auth for the request using
+	// the token created in opnsense.
+	//---------------------------------------------------------------------------
+	httpReq.SetBasicAuth(req.ApiRequest.Username, req.ApiRequest.Password)
+
+	//---------------------------------------------------------------------------
+	// Send the request
+	//---------------------------------------------------------------------------
+	response, _ := SendRequest(httpReq)
+
+	apiResponse := req.CreateResponseObj(response)
+
+	//---------------------------------------------------------------------------
+	// Send the response through the channel to the server for processing and storage.
+	//---------------------------------------------------------------------------
+	req.ResponseChannel <- apiResponse
+
+	// Set the digest as apiReq.ApiRequest.Params to the __digest__ value of the last 
+	// object in the response data slice.
+
+	time.Sleep(5 * time.Second)
+	req.Call()
 }
