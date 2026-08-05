@@ -22,6 +22,14 @@ func NewFirewallLogStreamClient(apiRequest *config.ApiRequest, responseChannel c
 	}
 }
 
+//----------------------------------------------------------------------------
+// Create a response object from the HTTP response received from the API call.
+// Use the ResponseObjType field in the ApiRequeest object to determine
+// which type of object to create from the response data. The response data is
+// unmarshaled into the appropriate object type and set in the Data field of the
+// EndpointResponse object.
+//----------------------------------------------------------------------------
+
 func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response) config.EndpointResponse {
 	response := config.EndpointResponse{
 		Uri: apiReq.ApiRequest.Uri,
@@ -47,11 +55,12 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 		response.Data = logEntry
 	}
 
-
 	return response
 }
 
-
+//----------------------------------------------------------------------------
+// Perform the HTTP call
+//----------------------------------------------------------------------------
 func (apiReq *FirewallLogStreamClient) Call() {
 	var req *http.Request
 	var err error
