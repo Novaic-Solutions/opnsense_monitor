@@ -46,13 +46,17 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 
 	switch apiReq.ApiRequest.ResponseObjType {
 	case "FirewallLogEntry":
-		// This needs to loop over every entry in the response and create a FirewallLogEntry object for it,
-		// then append it to a slice of FirewallLogEntry objects. Finally, set the Data field of the
-		var logEntry data.FirewallLogEntry
-		if err := json.Unmarshal(byteArr, &logEntry); err != nil {
-			fmt.Printf("Firewall_Log_Stream.go -- Error unmarshaling response body to FirewallLogEntry: %v\n", err)
+		//-----------------------------------------------------------------------
+		// This needs to loop over every entry in the response and create
+		//  a FirewallLogEntry object for it,
+		// then append it to a slice of FirewallLogEntry objects. 
+		// Finally, set the Data field of the
+		//-----------------------------------------------------------------------
+		var logEntries []data.FirewallLogEntry
+		if err := json.Unmarshal(byteArr, &logEntries); err != nil {
+			fmt.Printf("Firewall_Log_Stream.go -- Error unmarshaling response body to []FirewallLogEntry: %v\n", err)
 		}
-		response.Data = logEntry
+		response.Data = logEntries
 	}
 
 	return response
@@ -128,4 +132,7 @@ func (apiReq *FirewallLogStreamClient) Call() {
 
 	time.Sleep(5 * time.Second)
 
+	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[0].Digest
+	apiReq.ApiRequest.Params["limit"] = "100"
+	apiReq.Call()
 }
