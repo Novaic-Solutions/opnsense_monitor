@@ -68,8 +68,9 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 	return response
 }
 
-
-
+//----------------------------------------------------------------------------
+// 
+//----------------------------------------------------------------------------
 func (req *Request) Call() {
 	var httpReq *http.Request
 	var err error

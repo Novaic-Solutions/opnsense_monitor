@@ -37,7 +37,7 @@ func init() {
 func main() {
 
 	
-	responseChannel := make(chan client.EndpointResponse, 100)
+	responseChannel := make(chan config.EndpointResponse, 100)
 	fmt.Println("Starting application...")
 	
 	//-------------------------------------------------------------------------------
