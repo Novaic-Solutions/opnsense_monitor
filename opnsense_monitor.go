@@ -4,7 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	// "github.com/Novaic-Solutions/opnsense_monitor/client"
+	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	// "github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
@@ -31,15 +31,21 @@ func init() {
 	// Not used yet in this application, but could be used in the future.
 }
 
+func testChannel(counter int, responseChannel chan config.EndpointResponse) {
+	for i := 0; i < counter; i++ {
+		data := <- responseChannel
+		fmt.Printf("TestChannel -- Received data from channel: %+v\n", data)
+	}
+}
+
 //----------------------------------------------------------------------------
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
-
-	
+	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
 	fmt.Println("Opnsense_monitor: Starting application...")
-	
+
 	//-------------------------------------------------------------------------------
 	// Load the configuration from the embedded config.yaml file.
 	//-------------------------------------------------------------------------------
@@ -49,10 +55,16 @@ func main() {
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
 	//-------------------------------------------------------------------------------
-	requestClients, _ := conf.CreateApiRequests(responseChannel)
-	fmt.Printf("Opnsense_monitor: Populated API requests: %+v\n", requestClients)
+	requestObject, _ := conf.CreateApiRequests()
+	fmt.Printf("Opnsense_monitor: Populated API requests: %+v\n", requestObject)
 
+	for _, req := range requestObject {
+		newClient := client.NewCaller(req, responseChannel)
+		requestClients = append(requestClients, newClient)
+		go newClient.Call()
+	}
 
+	testChannel(10, responseChannel)
 
 	//-------------------------------------------------------------------------------
 	// Populate the requestClient slice with a Caller for each of the endpoints
@@ -89,5 +101,3 @@ func main() {
 	//-------------------------------------------------------------------
 	// server.StartServer()
 }
-
-

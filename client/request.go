@@ -86,7 +86,7 @@ func (req *Request) Call() {
 		for key, value := range req.ApiRequest.Params {
 			url += fmt.Sprintf("%s=%s&", key, value)
 		}
-		url = url[:len(url)-1] // Remove the trailing '&'
+		url = url[:len(url)-1] // Remove the trailing '&'know
 	}
 
 
@@ -96,13 +96,13 @@ func (req *Request) Call() {
 	// This should help prevent 400 errors from the API.
 	//---------------------------------------------------------------------------
 	if len(req.ApiRequest.Body) == 0 {
-		httpReq, err = http.NewRequest(req.ApiRequest.Method, req.ApiRequest.Url+req.ApiRequest.Uri, nil)
+		httpReq, err = http.NewRequest(req.ApiRequest.Method, url, nil)
 	} else {
 		//---------------------------------------------------------------------
 		// Ensure only the content type for application/json is set IF
 		// the request body is not empty. This prevents 400 errors from the API.
 		//---------------------------------------------------------------------
-		httpReq, err = http.NewRequest(req.ApiRequest.Method, req.ApiRequest.Url+req.ApiRequest.Uri, bytes.NewBuffer(req.ApiRequest.Body))
+		httpReq, err = http.NewRequest(req.ApiRequest.Method, url, bytes.NewBuffer(req.ApiRequest.Body))
 		httpReq.Header.Set("Content-Type", "application/json")
 	}
 
@@ -110,12 +110,6 @@ func (req *Request) Call() {
 		return
 	}
 
-	//---------------------------------------------------------------------------
-	// Set the basic auth for the request using
-	// the token created in opnsense.
-	//---------------------------------------------------------------------------
-	httpReq.SetBasicAuth(req.ApiRequest.Username, req.ApiRequest.Password)
-	
 	//---------------------------------------------------------------------------
 	// Set the basic auth for the request using
 	// the token created in opnsense.

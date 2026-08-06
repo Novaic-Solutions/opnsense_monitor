@@ -69,7 +69,6 @@ type ApiRequest struct {
 	Password string
 	TypeRequest string
 	ResponseObjType string
-	ResponseChannel chan EndpointResponse
 }
 
 // ----------------------------------------------------------------------
@@ -111,7 +110,7 @@ func LoadConfig(yamlFile embed.FS) *Config {
 //  Populate the slice of clients with a client 
 //  for each endpoint in the config file.
 //---------------------------------------------------------------------------
-func (conf *Config) CreateApiRequests(responseChannel chan EndpointResponse) ([]*ApiRequest, error) {
+func (conf *Config) CreateApiRequests() ([]*ApiRequest, error) {
 	var apiRequests []*ApiRequest
 
 	for _, endpoint := range conf.API.Endpoints {
@@ -140,7 +139,6 @@ func (conf *Config) CreateApiRequests(responseChannel chan EndpointResponse) ([]
 			Password: conf.API.ApiSecret,
 			TypeRequest: endpoint.Type,
 			ResponseObjType: endpoint.ResponseObjType,
-			ResponseChannel: responseChannel,
 		}
 
 		apiRequests = append(apiRequests, apiRequest)

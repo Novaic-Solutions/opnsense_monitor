@@ -90,13 +90,13 @@ func (apiReq *FirewallLogStreamClient) Call() {
 	// This should help prevent 400 errors from the API.
 	//---------------------------------------------------------------------------
 	if len(apiReq.ApiRequest.Body) == 0 {
-		req, err = http.NewRequest(apiReq.ApiRequest.Method, apiReq.ApiRequest.Url+apiReq.ApiRequest.Uri, nil)
+		req, err = http.NewRequest(apiReq.ApiRequest.Method, url, nil)
 	} else {
 		//---------------------------------------------------------------------
 		// Ensure only the content type for application/json is set IF
 		// the request body is not empty. This prevents 400 errors from the API.
 		//---------------------------------------------------------------------
-		req, err = http.NewRequest(apiReq.ApiRequest.Method, apiReq.ApiRequest.Url+apiReq.ApiRequest.Uri, bytes.NewBuffer(apiReq.ApiRequest.Body))
+		req, err = http.NewRequest(apiReq.ApiRequest.Method, url, bytes.NewBuffer(apiReq.ApiRequest.Body))
 		req.Header.Set("Content-Type", "application/json")
 	}
 
@@ -104,12 +104,6 @@ func (apiReq *FirewallLogStreamClient) Call() {
 		return
 	}
 
-	//---------------------------------------------------------------------------
-	// Set the basic auth for the request using
-	// the token created in opnsense.
-	//---------------------------------------------------------------------------
-	req.SetBasicAuth(apiReq.ApiRequest.Username, apiReq.ApiRequest.Password)
-	
 	//---------------------------------------------------------------------------
 	// Set the basic auth for the request using
 	// the token created in opnsense.
