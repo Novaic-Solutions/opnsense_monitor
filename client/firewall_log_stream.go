@@ -66,6 +66,7 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 // Perform the HTTP call
 //----------------------------------------------------------------------------
 func (apiReq *FirewallLogStreamClient) Call() {
+	fmt.Printf("Firewall_Log_Stream.go -- Calling API endpoint: %s\n", apiReq.ApiRequest.Uri)
 	var req *http.Request
 	var err error
 

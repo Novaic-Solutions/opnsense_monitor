@@ -54,8 +54,8 @@ func SendRequest(apiReq *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Endpoint.go -- Request sent to %s with method %s\n", apiReq.URL, apiReq.Method)
-	fmt.Printf("Endpoint.go -- Response Status: %s\n", resp.Status)
+	fmt.Printf("Client_request.go -- Request sent to %s with method %s\n", apiReq.URL, apiReq.Method)
+	fmt.Printf("Client_request.go -- Response Status: %s\n", resp.Status)
 
 	return resp, nil
 }

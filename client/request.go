@@ -72,6 +72,7 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 // 
 //----------------------------------------------------------------------------
 func (req *Request) Call() {
+	fmt.Printf("Request.go -- Calling API endpoint: %s\n", req.ApiRequest.Uri)
 	var httpReq *http.Request
 	var err error
 

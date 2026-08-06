@@ -4,7 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	"github.com/Novaic-Solutions/opnsense_monitor/client"
+	// "github.com/Novaic-Solutions/opnsense_monitor/client"
 	// "github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
@@ -38,19 +38,21 @@ func main() {
 
 	
 	responseChannel := make(chan config.EndpointResponse, 100)
-	fmt.Println("Starting application...")
+	fmt.Println("Opnsense_monitor: Starting application...")
 	
 	//-------------------------------------------------------------------------------
 	// Load the configuration from the embedded config.yaml file.
 	//-------------------------------------------------------------------------------
 	conf := config.LoadConfig(yamlFile)
-	fmt.Printf("Loaded config: %+v\n", conf)
+	fmt.Printf("Opnsense_monitor: Loaded config: %+v\n", conf)
 
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
 	//-------------------------------------------------------------------------------
-	requestClients, _ := client.PopulateApiRequests(conf.API.Endpoints, responseChannel, conf.API.ApiKey, conf.API.ApiSecret)
-	fmt.Printf("Populated API requests: %+v\n", requestClients)
+	requestClients, _ := conf.CreateApiRequests(responseChannel)
+	fmt.Printf("Opnsense_monitor: Populated API requests: %+v\n", requestClients)
+
+
 
 	//-------------------------------------------------------------------------------
 	// Populate the requestClient slice with a Caller for each of the endpoints

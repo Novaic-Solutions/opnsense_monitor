@@ -111,7 +111,7 @@ func LoadConfig(yamlFile embed.FS) *Config {
 //  Populate the slice of clients with a client 
 //  for each endpoint in the config file.
 //---------------------------------------------------------------------------
-func CreateApiRequests(conf *Config, responseChannel chan EndpointResponse) ([]*ApiRequest, error) {
+func (conf *Config) CreateApiRequests(responseChannel chan EndpointResponse) ([]*ApiRequest, error) {
 	var apiRequests []*ApiRequest
 
 	for _, endpoint := range conf.API.Endpoints {
