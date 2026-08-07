@@ -66,16 +66,18 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 // Perform the HTTP call
 //----------------------------------------------------------------------------
 func (apiReq *FirewallLogStreamClient) Call() {
-	fmt.Printf("Firewall_Log_Stream.go -- Calling API endpoint: %s\n", apiReq.ApiRequest.Uri)
+	//fmt.Printf("Firewall_Log_Stream.go -- Calling API endpoint: %s\n", apiReq.ApiRequest.Uri)
 	var req *http.Request
 	var err error
 
+	//fmt.Printf("Firewall_Log_Stream.go -- Creating URL for API request: %s\n", apiReq.ApiRequest.Uri)
 	url := apiReq.ApiRequest.Url + apiReq.ApiRequest.Uri
 
 	//---------------------------------------------------------------------------
 	// If there are any parameters, append them to the URL as a query string.
 	//---------------------------------------------------------------------------
 	if len(apiReq.ApiRequest.Params) > 0 {
+		//fmt.Printf("Firewall_Log_Stream.go -- Appending parameters to URL for API request: %s\n", apiReq.ApiRequest.Uri)
 		url += "?"
 		for key, value := range apiReq.ApiRequest.Params {
 			url += fmt.Sprintf("%s=%s&", key, value)
@@ -90,8 +92,10 @@ func (apiReq *FirewallLogStreamClient) Call() {
 	// This should help prevent 400 errors from the API.
 	//---------------------------------------------------------------------------
 	if len(apiReq.ApiRequest.Body) == 0 {
+		//fmt.Printf("Firewall_Log_Stream.go -- Creating HTTP request with no body for API request: %s\n", apiReq.ApiRequest.Uri)
 		req, err = http.NewRequest(apiReq.ApiRequest.Method, url, nil)
 	} else {
+		//fmt.Printf("Firewall_Log_Stream.go -- Creating HTTP request with body for API request: %s\n", apiReq.ApiRequest.Uri)
 		//---------------------------------------------------------------------
 		// Ensure only the content type for application/json is set IF
 		// the request body is not empty. This prevents 400 errors from the API.
@@ -108,18 +112,22 @@ func (apiReq *FirewallLogStreamClient) Call() {
 	// Set the basic auth for the request using
 	// the token created in opnsense.
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Firewall_Log_Stream.go -- Setting basic auth for API request: %s\n", apiReq.ApiRequest.Uri)
 	req.SetBasicAuth(apiReq.ApiRequest.Username, apiReq.ApiRequest.Password)
 
 	//---------------------------------------------------------------------------
 	// Send the request
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Firewall_Log_Stream.go -- Sending API request: %s\n", apiReq.ApiRequest.Uri)
 	response, _ := SendRequest(req)
 
+	//fmt.Printf("Firewall_Log_Stream.go -- Received API response for request: %s\n", apiReq.ApiRequest.Uri)
 	apiResponse := apiReq.CreateResponseObj(response)
 
 	//---------------------------------------------------------------------------
 	// Send the response through the channel to the server for processing and storage.
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Firewall_Log_Stream.go -- Sending API response through channel for request: %s\n", apiReq.ApiRequest.Uri)
 	apiReq.ResponseChannel <- apiResponse
 
 	// Set the digest as apiReq.ApiRequest.Params to the __digest__ value of the last 

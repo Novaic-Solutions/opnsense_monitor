@@ -33,6 +33,7 @@ func init() {
 
 func testChannel(counter int, responseChannel chan config.EndpointResponse) {
 	for i := 0; i < counter; i++ {
+		fmt.Printf("TestChannel -- Waiting for data from channel...\n")
 		data := <- responseChannel
 		fmt.Printf("TestChannel -- Received data from channel: %+v\n", data)
 	}
@@ -61,7 +62,11 @@ func main() {
 	for _, req := range requestObject {
 		newClient := client.NewCaller(req, responseChannel)
 		requestClients = append(requestClients, newClient)
-		go newClient.Call()
+	}
+
+	for _, client := range requestClients {
+		fmt.Printf("Starting client for: %+v\n", client)
+		go client.Call()
 	}
 
 	testChannel(10, responseChannel)

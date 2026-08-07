@@ -72,16 +72,18 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 // 
 //----------------------------------------------------------------------------
 func (req *Request) Call() {
-	fmt.Printf("Request.go -- Calling API endpoint: %s\n", req.ApiRequest.Uri)
+	//fmt.Printf("Request.go -- Calling API endpoint: %s\n", req.ApiRequest.Uri)
 	var httpReq *http.Request
 	var err error
 
+	//fmt.Printf("Request.go -- Creating URL for API request: %s\n", req.ApiRequest.Uri)
 	url := req.ApiRequest.Url + req.ApiRequest.Uri
 
 	//---------------------------------------------------------------------------
 	// If there are any parameters, append them to the URL as a query string.
 	//---------------------------------------------------------------------------
 	if len(req.ApiRequest.Params) > 0 {
+		//fmt.Printf("Request.go -- Appending parameters to URL for API request: %s\n", req.ApiRequest.Uri)
 		url += "?"
 		for key, value := range req.ApiRequest.Params {
 			url += fmt.Sprintf("%s=%s&", key, value)
@@ -96,36 +98,47 @@ func (req *Request) Call() {
 	// This should help prevent 400 errors from the API.
 	//---------------------------------------------------------------------------
 	if len(req.ApiRequest.Body) == 0 {
+		//fmt.Printf("Request.go -- Creating HTTP request with no body for API request: %s\n", req.ApiRequest.Uri)
 		httpReq, err = http.NewRequest(req.ApiRequest.Method, url, nil)
+		if err != nil {
+			fmt.Printf("Request.go -- Error creating HTTP request: %v\n", err)
+			return
+		}
 	} else {
+		//fmt.Printf("Request.go -- Creating HTTP request with body for API request: %s\n", req.ApiRequest.Uri)
 		//---------------------------------------------------------------------
 		// Ensure only the content type for application/json is set IF
 		// the request body is not empty. This prevents 400 errors from the API.
 		//---------------------------------------------------------------------
+		//fmt.Printf("Request.go -- ApiRequest.Body type: %T\n", req.ApiRequest.Body)
 		httpReq, err = http.NewRequest(req.ApiRequest.Method, url, bytes.NewBuffer(req.ApiRequest.Body))
+		if err != nil {
+			fmt.Printf("Request.go -- Error creating HTTP request: %v\n", err)
+			return
+		}
 		httpReq.Header.Set("Content-Type", "application/json")
-	}
-
-	if err != nil {
-		return
 	}
 
 	//---------------------------------------------------------------------------
 	// Set the basic auth for the request using
 	// the token created in opnsense.
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Request.go -- Setting basic auth for API request: %s\n", req.ApiRequest.Uri)
 	httpReq.SetBasicAuth(req.ApiRequest.Username, req.ApiRequest.Password)
 
 	//---------------------------------------------------------------------------
 	// Send the request
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Request.go -- Sending API request: %s\n", req.ApiRequest.Uri)
 	response, _ := SendRequest(httpReq)
 
+	//fmt.Printf("Request.go -- Received API response for request: %s\n", req.ApiRequest.Uri)
 	apiResponse := req.CreateResponseObj(response)
 
 	//---------------------------------------------------------------------------
 	// Send the response through the channel to the server for processing and storage.
 	//---------------------------------------------------------------------------
+	//fmt.Printf("Request.go -- Sending API response through channel for request: %s\n", req.ApiRequest.Uri)
 	req.ResponseChannel <- apiResponse
 
 	// Set the digest as apiReq.ApiRequest.Params to the __digest__ value of the last 
