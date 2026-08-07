@@ -141,9 +141,10 @@ func (req *Request) Call() {
 	//fmt.Printf("Request.go -- Sending API response through channel for request: %s\n", req.ApiRequest.Uri)
 	req.ResponseChannel <- apiResponse
 
+	//----------------------------------------------------------------------------
 	// Set the digest as apiReq.ApiRequest.Params to the __digest__ value of the last 
 	// object in the response data slice.
-
+	//----------------------------------------------------------------------------
 	time.Sleep(5 * time.Second)
 	req.Call()
 }

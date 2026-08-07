@@ -93,13 +93,12 @@ func main() {
 	//-------------------------------------------------------------------
 	//     Create the web server to serve the json data to the web page
 	//-------------------------------------------------------------------
-	// server := &server.Server{
-	// 	Port:            conf.Server.Port,
-	// 	Host:            conf.Server.Host,
-	// 	Conf:            conf,
-	// 	Clients:         httpClients,
-	// 	ResponseChannel: responseChannel,
-	// }
+	server := &server.Server{
+		Port:            conf.Server.Port,
+		Host:            conf.Server.Host,
+		Conf:            conf,
+		ResponseChannel: responseChannel,
+	}
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
