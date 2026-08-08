@@ -3,64 +3,22 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"encoding/json"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
-	"github.com/Novaic-Solutions/opnsense_monitor/client"
 )
 
 type Server struct {
 	Port string
 	Host string
 	Conf *config.Config
-	ResponseChannel chan *config.EndpointResponse
+	ResponseChannel chan config.EndpointResponse
 }
-
-// //----------------------------------------------------------------------------
-// //  Gather data from the database and form JSON response for the page
-// //----------------------------------------------------------------------------
-// func (serv Server) GatherData() string {
-// 	totalClient := 0
-// 	dataString := make(map[string]interface{})
-
-// 	// Loop over the clients and start their loops in goroutines, where they
-// 	// will 
-// 	for _, cli := range serv.Clients {
-// 		// Here, eventually, gather the data from the database for each client
-// 		// and form the JSON response for the page.
-// 		fmt.Printf("Server.go -- Gathering data from client: %v\n", cli.ApiRequest.Endpoint)
-// 		go cli.Gather()
-// 		totalClient++
-// 	}
-
-// 	// 
-// 	for totalClient > 0 {
-// 		response := <-serv.ResponseChannel
-// 		if response.Data == nil {
-// 			fmt.Printf("Server.go -- Error: No data received from client for URI: %s\n", response.Uri)
-// 			totalClient--
-// 			continue
-// 		}
-// 		dataString[response.Uri] = response.Data
-// 		totalClient--
-// 	}
-
-// 	responseBytes, err := json.Marshal(dataString)
-// 	if err != nil {
-// 		fmt.Printf("Server.go -- Error marshaling data to JSON: %v\n", err)
-// 		return ""
-// 	}
-
-// 	respString := string(responseBytes)
-
-// 	return respString
-// }
 
 //----------------------------------------------------------------------------
 //  Request handler for all incoming requests.
 //  This will serve up the JSON gathered from all of the API 
 //  endpoints that are being monitored.
 //----------------------------------------------------------------------------
-func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request) {
+func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request, data *map[string]string) {
     w.WriteHeader(http.StatusOK)
 	
 	// Loop over the Data object that is updated by the server with
@@ -73,9 +31,50 @@ func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request) {
 //   Function for looping over the response channel and updating the Data object with
 //   the data from the clients. This will be called in a goroutine.
 //----------------------------------------------------------------------------
-func (serv *Server) UpdateData(data *map[string]interface{}) {
+func (serv *Server) UpdateData(data *map[string]string) {
+	for responseData := range serv.ResponseChannel {
+		// Update the Data object with the data from the clients gathered from the channel
 
+	}
 }
+
+//----------------------------------------------------------------------------
+//   Function for formatting the data from the clients into a string
+//   so that it conforms to the output that is expected by prometheus.
+//----------------------------------------------------------------------------
+func (serv *Server) FormatDataString(data *map[string]string) string {
+}
+
+//----------------------------------------------------------------------------
+//   Get the data from the response object
+//----------------------------------------------------------------------------
+func (serv *Server) GetDataFromResponse(response config.EndpointResponse) string {
+	switch response.ResponseDataType {
+	case "FirewallLogEntry":
+		// Format the data from the response object into a string
+		return ""
+	case "ArpTableEntry":
+		// Format the data from the response object into a string
+		return ""
+	case "IFaceStatistics":
+		// Format the data from the response object into a string
+		return ""
+	case "FirewallSession":
+		// Format the data from the response object into a string
+		return ""
+	case "FirewallState":
+		// Format the data from the response object into a string
+		return ""
+	case "IfaceTraffic":
+		// Format the data from the response object into a string
+		return ""
+		
+	default:
+		fmt.Printf("Server.go -- Unknown ResponseDataType: %s\n", response.ResponseDataType)
+		return ""
+	}
+}
+
 //----------------------------------------------------------------------------
 //  Start the web server to serve the JSON data to the web page.
 //----------------------------------------------------------------------------
@@ -85,13 +84,15 @@ func (serv *Server) StartServer() {
 	// gathered from the clients. This will be updated by the server with
 	// data from the clients gathered from the channel.
 	//------------------------------------------------------------------------
-	var data map[string]interface{} = make(map[string]interface{})
-
+	var data map[string]string = make(map[string]string)
+	var dataPtr *map[string]string = &data
 
 	//------------------------------------------------------------------------
 	// Register the request handler for all incoming requests.
 	//------------------------------------------------------------------------
-	http.HandleFunc("/", serv.HandleAllRequest)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		serv.HandleAllRequest(w, r, dataPtr)
+	})
 	
 	//------------------------------------------------------------------------
 	// Create the address string for the server to listen on.
