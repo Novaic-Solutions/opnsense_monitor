@@ -146,5 +146,5 @@ func (req *Request) Call() {
 	// object in the response data slice.
 	//----------------------------------------------------------------------------
 	time.Sleep(5 * time.Second)
-	req.Call()
+	//req.Call()
 }

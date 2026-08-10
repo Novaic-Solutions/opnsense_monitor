@@ -137,5 +137,5 @@ func (apiReq *FirewallLogStreamClient) Call() {
 
 	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[0].Digest
 	apiReq.ApiRequest.Params["limit"] = "100"
-	apiReq.Call()
+	//apiReq.Call()
 }

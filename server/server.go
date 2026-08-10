@@ -24,7 +24,7 @@ func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request, dat
 	// Loop over the Data object that is updated by the server with
 	// data from the clients gathered from the channel
 
-    w.Write([]byte(data))
+    // w.Write([]byte(data))
 }
 
 //----------------------------------------------------------------------------
@@ -32,10 +32,10 @@ func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request, dat
 //   the data from the clients. This will be called in a goroutine.
 //----------------------------------------------------------------------------
 func (serv *Server) UpdateData(data *map[string]string) {
-	for responseData := range serv.ResponseChannel {
-		// Update the Data object with the data from the clients gathered from the channel
+	// for responseData := range serv.ResponseChannel {
+	// 	// Update the Data object with the data from the clients gathered from the channel
 
-	}
+	// }
 }
 
 //----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ func (serv *Server) UpdateData(data *map[string]string) {
 //   so that it conforms to the output that is expected by prometheus.
 //----------------------------------------------------------------------------
 func (serv *Server) FormatDataString(data *map[string]string) string {
+	return ""
 }
 
 //----------------------------------------------------------------------------

@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	// "github.com/Novaic-Solutions/opnsense_monitor/server"
@@ -31,11 +32,9 @@ func init() {
 	// Not used yet in this application, but could be used in the future.
 }
 
-func testChannel(counter int, responseChannel chan config.EndpointResponse) {
-	for i := 0; i < counter; i++ {
-		fmt.Printf("TestChannel -- Waiting for data from channel...\n")
-		data := <- responseChannel
-		fmt.Printf("TestChannel -- Received data from channel: %+v\n", data)
+func testChannel(responseChannel chan config.EndpointResponse) {
+	for responseData := range responseChannel {
+		fmt.Printf("TestChannel -- Received data from channel: %+v\n", responseData)
 	}
 }
 
@@ -59,30 +58,28 @@ func main() {
 	requestObject, _ := conf.CreateApiRequests()
 	fmt.Printf("Opnsense_monitor: Populated API requests: %+v\n", requestObject)
 
+	//-------------------------------------------------------------------------------
+	// Create a client for each endpoint in the config file and start the client
+	//-------------------------------------------------------------------------------
 	for _, req := range requestObject {
 		newClient := client.NewCaller(req, responseChannel)
 		requestClients = append(requestClients, newClient)
 	}
 
+	//-------------------------------------------------------------------------------
+	// Start the clients to call the endpoints and gather the data.
+	//-------------------------------------------------------------------------------
 	for _, client := range requestClients {
 		fmt.Printf("Starting client for: %+v\n", client)
 		go client.Call()
 	}
 
-	testChannel(10, responseChannel)
+	testChannel(responseChannel)
 
 	//-------------------------------------------------------------------------------
 	// Populate the requestClient slice with a Caller for each of the endpoints
 	// in the config file.
 	//-------------------------------------------------------------------------------
-	
-	// Send the client slice and the response channel to CreateApiRequests
-	// To populate the slice with the clients for each of the endpoints in the config file.
-	// err := CreateApiRequests(conf, &httpClients, responseChannel)
-	// if err != nil {
-	// 	fmt.Printf("Opnsense_monitor.go -- Error creating API requests: %v\n", err)
-	// 	return
-	// }
 
 	//-------------------------------------------------------------------
 	//	   Start client jobs for retrieving json from api endpoints
@@ -93,12 +90,12 @@ func main() {
 	//-------------------------------------------------------------------
 	//     Create the web server to serve the json data to the web page
 	//-------------------------------------------------------------------
-	server := &server.Server{
-		Port:            conf.Server.Port,
-		Host:            conf.Server.Host,
-		Conf:            conf,
-		ResponseChannel: responseChannel,
-	}
+	// server := &server.Server{
+	// 	Port:            conf.Server.Port,
+	// 	Host:            conf.Server.Host,
+	// 	Conf:            conf,
+	// 	ResponseChannel: responseChannel,
+	// }
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
