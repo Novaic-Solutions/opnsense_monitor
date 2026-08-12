@@ -46,7 +46,7 @@ func SendRequest(apiReq *http.Request) (*http.Response, error) {
 	// Create the HTTP client
 	//----------------------------------------------------------------------------
 	fmt.Printf("Client_request.go -- Creating HTTP client\n")
-	client := CreateHTTPClient(30)
+	client := CreateHTTPClient(20)
 
 	//----------------------------------------------------------------------------
 	// Send the request and return the response
@@ -68,7 +68,7 @@ func SendRequest(apiReq *http.Request) (*http.Response, error) {
 //----------------------------------------------------------------------------
 func GetResponseData(resp *http.Response) ([]byte, error) {
 	if resp == nil {
-		return nil, fmt.Errorf("response is nil")
+		return nil, fmt.Errorf("response is nil.")
 	}
 	defer resp.Body.Close()
 	

@@ -103,6 +103,13 @@ type FirewallState struct {
 //------------------------------------------------------------------------------
 // 	/api/diagnostics/firewall/query_pf_top
 //------------------------------------------------------------------------------
+type FirewallSessions struct {
+	Total int 
+	Current int
+	RowCount int
+	Rows []FirewallSession
+}
+
 type FirewallSession struct {
 	Proto string
 	Dir string

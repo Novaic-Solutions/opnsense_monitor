@@ -3,7 +3,8 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	//
+	"reflect"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	// "github.com/Novaic-Solutions/opnsense_monitor/server"
@@ -34,7 +35,8 @@ func init() {
 
 func testChannel(responseChannel chan config.EndpointResponse) {
 	for responseData := range responseChannel {
-		fmt.Printf("TestChannel -- Received data from channel: %+v\n", responseData)
+		//spew.Printf("TestChannel -- Received data from channel: %#+v\n", responseData)
+		fmt.Printf("TestChannel -- Received data from channel: %s\n", reflect.TypeOf(responseData.Data))
 	}
 }
 

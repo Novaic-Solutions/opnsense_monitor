@@ -2,9 +2,10 @@ package config
 
 import (
 	"embed"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"os"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,48 +27,48 @@ type Config struct {
 		Port string `yaml:"port"`
 	} `yaml:"server"`
 	API struct {
-		ApiKey    string            `yaml:"api_key"`
-		ApiSecret string            `yaml:"api_secret"`
-		BaseURL   string            `yaml:"base_url"`
+		ApiKey    string     `yaml:"api_key"`
+		ApiSecret string     `yaml:"api_secret"`
+		BaseURL   string     `yaml:"base_url"`
 		Endpoints []Endpoint `yaml:"endpoints"`
 	} `yaml:"api"`
 }
 
-//----------------------------------------------------------------------
-// Endpoint represents a single API Endpoint to call and the 
+// ----------------------------------------------------------------------
+// Endpoint represents a single API Endpoint to call and the
 // data required to perform the request.
-//----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 type Endpoint struct {
-	Request RequestObj `yaml:"request"`
-	Type string `yaml:"type"`
-	ResponseObjType string `yaml:"response_obj_type"`
+	Request         RequestObj `yaml:"request"`
+	Type            string     `yaml:"type"`
+	ResponseObjType string     `yaml:"response_obj_type"`
 }
 
 type RequestObj struct {
-	Uri string `yaml:"uri"`
-	Method string `yaml:"method"`
-	ResponseType string `yaml:"response_type"`
-	Params map[string]string `yaml:"params"`
-	RequestBody any `yaml:"request_body"`
+	Uri          string            `yaml:"uri"`
+	Method       string            `yaml:"method"`
+	ResponseType string            `yaml:"response_type"`
+	Params       map[string]string `yaml:"params"`
+	RequestBody  any               `yaml:"request_body"`
 }
 
 type EndpointResponse struct {
-	Uri string
-	Timestamp string
+	Uri              string
+	Timestamp        string
 	ResponseDataType string
-	Data any
+	Data             any
 }
 
 type ApiRequest struct {
-	Url string
-	Uri string
-	Method string
-	Params map[string]string
-	Body []byte
-	ResponseType string
-	Username string
-	Password string
-	TypeRequest string
+	Url             string
+	Uri             string
+	Method          string
+	Params          map[string]string
+	Body            []byte
+	ResponseType    string
+	Username        string
+	Password        string
+	TypeRequest     string
 	ResponseObjType string
 }
 
@@ -105,11 +106,12 @@ func LoadConfig(yamlFile embed.FS) *Config {
 	return &config
 }
 
-
-//---------------------------------------------------------------------------
-//  Populate the slice of clients with a client 
-//  for each endpoint in the config file.
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+//
+//	Populate the slice of clients with a client
+//	for each endpoint in the config file.
+//
+// ---------------------------------------------------------------------------
 func (conf *Config) CreateApiRequests() ([]*ApiRequest, error) {
 	var apiRequests []*ApiRequest
 
@@ -129,15 +131,15 @@ func (conf *Config) CreateApiRequests() ([]*ApiRequest, error) {
 		}
 
 		apiRequest := &ApiRequest{
-			Url: conf.API.BaseURL,
-			Uri: endpoint.Request.Uri,
-			Method: endpoint.Request.Method,
-			Params: endpoint.Request.Params,
-			Body: bytes,
-			ResponseType: endpoint.Request.ResponseType,
-			Username: conf.API.ApiKey,
-			Password: conf.API.ApiSecret,
-			TypeRequest: endpoint.Type,
+			Url:             conf.API.BaseURL,
+			Uri:             endpoint.Request.Uri,
+			Method:          endpoint.Request.Method,
+			Params:          endpoint.Request.Params,
+			Body:            bytes,
+			ResponseType:    endpoint.Request.ResponseType,
+			Username:        conf.API.ApiKey,
+			Password:        conf.API.ApiSecret,
+			TypeRequest:     endpoint.Type,
 			ResponseObjType: endpoint.ResponseObjType,
 		}
 

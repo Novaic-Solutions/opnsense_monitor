@@ -43,7 +43,7 @@ api:
         request_body:
           current: 1
           rowCount: -1
-      response_obj_type: "FirewallSession"
+      response_obj_type: "FirewallSessions"
       type: "request"
 
     - request:
