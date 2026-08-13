@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	//"github.com/davecgh/go-spew/spew"
-	"reflect"
+	//"reflect"
 	"bytes"
 	"time"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
@@ -27,7 +27,6 @@ func NewRequest(apiRequest *config.ApiRequest, responseChannel chan config.Endpo
 	}
 }
 
-
 //----------------------------------------------------------------------------
 // Create response object based on the ApiRequest.ResponseObjType field.
 //----------------------------------------------------------------------------
@@ -39,47 +38,52 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 		Data: nil,
 	}
 
-	//fmt.Printf("Request.go -- Status Code: %d\n", httpResp.StatusCode)
-
 	byteArr, err := GetResponseData(httpResp)
 	if err != nil {
 		fmt.Printf("Request.go -- Error getting response data: %v\n", err)
 		return response
 	}
 
-	var logEntry any
-
 	switch req.ApiRequest.ResponseObjType {
-	case "ArpTableEntry":
-		logEntry = data.ArpTableEntry{}
-	case "IFaceStatistics":
-		logEntry = data.IfaceStatistics{}
+	case "ArpTable":
+		var arpTable = data.ArpTable{}
+		if err := json.Unmarshal(byteArr, &arpTable); err != nil {
+			fmt.Printf("Request.go -- Error unmarshaling response body to ArpTable: %v\n", err)
+		} else {
+			response.Data = arpTable
+		}
+	case "IfaceStatistics":
+		var stats = data.IfaceStatistics{}
+		if err := json.Unmarshal(byteArr, &stats); err != nil {
+			fmt.Printf("Request.go -- Error unmarshaling response body to IfaceStatistics: %v\n", err)
+		} else {
+			response.Data = stats
+		}
 	case "FirewallSessions":
-		logEntry = data.FirewallSessions{}
-	case "FirewallState":
-		logEntry = data.FirewallState{}
-	case "IfaceTraffic":
-		logEntry = data.IfaceTraffic{}
+		var sessions data.FirewallSessions
+		if err := json.Unmarshal(byteArr, &sessions); err != nil {
+			fmt.Printf("Request.go -- Error unmarshaling response body to FirewallSessions: %v\n", err)
+		} else {
+			response.Data = sessions
+		}
+	case "FirewallStates":
+		var states = data.FirewallStates{}
+		if err := json.Unmarshal(byteArr, &states); err != nil {
+			fmt.Printf("Request.go -- Error unmarshaling response body to FirewallStates: %v\n", err)
+		} else {
+			response.Data = states
+		}
+	case "Interfaces":
+		var interfaces = data.Interfaces{}
+		if err := json.Unmarshal(byteArr, &interfaces); err != nil {
+			fmt.Printf("Request.go -- Error unmarshaling response body to Interfaces: %v\n", err)
+		} else {
+			response.Data = interfaces
+		}
 	default:
 		fmt.Printf("Request.go -- Unknown ResponseObjType: %s\n", req.ApiRequest.ResponseObjType)
 	}
 
-	if err := json.Unmarshal(byteArr, &logEntry); err != nil {
-		fmt.Printf("Request.go -- Error unmarshaling response body to %s: %v\n", req.ApiRequest.ResponseObjType, err)
-	}
-
-	response.Data = logEntry
-
-	// fmt.Printf("\nRequest.go -- response.data type: %s\n", reflect.TypeOf(response.Data).String())
-	// fmt.Printf("Request.go -- response.data: %v\n", response.ResponseDataType)
-
-	if response.ResponseDataType == "FirewallSessions" {
-		//fmt.Printf("Request.go -- response.data: %v\n", response.Data.(map[string]interface{})["Src_addr"])
-		// for key := range response.Data.(map[string]interface{}) {
-		// 	fmt.Printf("Request.go -- response.data key: %s\n", key)
-		// }
-	}
-	
 	return response
 }
 
@@ -102,7 +106,6 @@ func (req *Request) Call() {
 		}
 		url = url[:len(url)-1] // Remove the trailing '&'know
 	}
-
 
 	//---------------------------------------------------------------------------
 	// Create a new request object with the appropriate method, endpoint, and body.
@@ -146,7 +149,6 @@ func (req *Request) Call() {
 	//---------------------------------------------------------------------------
 	req.ResponseChannel <- apiResponse
 
-
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 	//req.Call()
 }

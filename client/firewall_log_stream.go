@@ -43,20 +43,17 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 		fmt.Printf("Firewall_Log_Stream.go -- Error getting response data: %v\n", err)
 		return response
 	}
-
+	// NOTE: The FirewallLoggEntry endpoint is just a straight up array that is returned back.
+	//       So this needs to create a slice that will append each of the entries to it AFTER
+	//	   the data is unmarshaled into a FirewallLogEntry object. 
 	switch apiReq.ApiRequest.ResponseObjType {
 	case "FirewallLogEntry":
-		//-----------------------------------------------------------------------
-		// This needs to loop over every entry in the response and create
-		//  a FirewallLogEntry object for it,
-		// then append it to a slice of FirewallLogEntry objects. 
-		// Finally, set the Data field of the
-		//-----------------------------------------------------------------------
-		var logEntries []data.FirewallLogEntry
+		var logEntries = data.FirewallLogEntries{}
 		if err := json.Unmarshal(byteArr, &logEntries); err != nil {
 			fmt.Printf("Firewall_Log_Stream.go -- Error unmarshaling response body to []FirewallLogEntry: %v\n", err)
+		} else {
+			response.Data = logEntries
 		}
-		response.Data = logEntries
 	}
 
 	return response
@@ -121,9 +118,9 @@ func (apiReq *FirewallLogStreamClient) Call() {
 	//---------------------------------------------------------------------------
 	apiReq.ResponseChannel <- apiResponse
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
-	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[0].Digest
-	apiReq.ApiRequest.Params["limit"] = "100"
+	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.(data.FirewallLogEntries).Rows[len(apiResponse.Data.(data.FirewallLogEntries).Rows)-1].Digest
+	apiReq.ApiRequest.Params["limit"] = "1000"
 	//apiReq.Call()
 }

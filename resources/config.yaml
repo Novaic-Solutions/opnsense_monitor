@@ -23,7 +23,7 @@ api:
           current: 1
           rowCount: -1
           resolve: "no"
-      response_obj_type: "ArpTableEntry"
+      response_obj_type: "ArpTable"
       type: "request"
 
     - request:
@@ -32,7 +32,7 @@ api:
         response_type: "application/json"
         params: {}
         request_body: {}
-      response_obj_type: "IFaceStatistics"
+      response_obj_type: "IfaceStatistics"
       type: "request"
 
     - request:
@@ -54,7 +54,7 @@ api:
         request_body:
           current: 1
           rowCount: -1
-      response_obj_type: "FirewallState"
+      response_obj_type: "FirewallStates"
       type: "request"
 
 # Statistics for the firewall interfaces.
@@ -64,7 +64,7 @@ api:
         response_type: "application/json"
         params: {}
         request_body: {}
-      response_obj_type: "IfaceTraffic"
+      response_obj_type: "Interfaces"
       type: "request"
 
 # Live stream of firewall logs.

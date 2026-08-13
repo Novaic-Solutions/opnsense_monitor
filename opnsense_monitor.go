@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
+	"github.com/Novaic-Solutions/opnsense_monitor/data"
 	// "github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
@@ -37,6 +38,9 @@ func testChannel(responseChannel chan config.EndpointResponse) {
 	for responseData := range responseChannel {
 		//spew.Printf("TestChannel -- Received data from channel: %#+v\n", responseData)
 		fmt.Printf("TestChannel -- Received data from channel: %s\n", reflect.TypeOf(responseData.Data))
+		if responseData.ResponseDataType == "FirewallLogEntry" {
+			fmt.Println("TestChannel -- 22222222222222 Data: ", responseData.Data.(data.FirewallLogEntries).Rows[0].Interface)
+		}
 	}
 }
 
