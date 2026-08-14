@@ -29,12 +29,11 @@ func NewFirewallLogStreamClient(apiRequest *config.ApiRequest, responseChannel c
 // unmarshaled into the appropriate object type and set in the Data field of the
 // EndpointResponse object.
 //----------------------------------------------------------------------------
-
 func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response) config.EndpointResponse {
 	response := config.EndpointResponse{
 		Uri: apiReq.ApiRequest.Uri,
 		Timestamp: time.Now().Format(time.RFC3339),
-		ResponseDataType: apiReq.ApiRequest.ResponseType,
+		ResponseDataType: apiReq.ApiRequest.ResponseObjType,
 		Data: nil,
 	}
 
@@ -43,12 +42,15 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 		fmt.Printf("Firewall_Log_Stream.go -- Error getting response data: %v\n", err)
 		return response
 	}
-	// NOTE: The FirewallLoggEntry endpoint is just a straight up array that is returned back.
-	//       So this needs to create a slice that will append each of the entries to it AFTER
-	//	   the data is unmarshaled into a FirewallLogEntry object. 
+
+	//---------------------------------------------------------------------------
+	// Unmarshal the response data into the appropriate object type based on the
+	// ResponseObjType field in the ApiRequest object.
+	//---------------------------------------------------------------------------
 	switch apiReq.ApiRequest.ResponseObjType {
 	case "FirewallLogEntry":
-		var logEntries = data.FirewallLogEntries{}
+		var logEntries []data.FirewallLogEntry
+
 		if err := json.Unmarshal(byteArr, &logEntries); err != nil {
 			fmt.Printf("Firewall_Log_Stream.go -- Error unmarshaling response body to []FirewallLogEntry: %v\n", err)
 		} else {
@@ -78,7 +80,6 @@ func (apiReq *FirewallLogStreamClient) Call() {
 		}
 		url = url[:len(url)-1] // Remove the trailing '&'
 	}
-
 
 	//---------------------------------------------------------------------------
 	// Create a new request object with the appropriate method, endpoint, and body.
@@ -120,7 +121,7 @@ func (apiReq *FirewallLogStreamClient) Call() {
 
 	time.Sleep(15 * time.Second)
 
-	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.(data.FirewallLogEntries).Rows[len(apiResponse.Data.(data.FirewallLogEntries).Rows)-1].Digest
-	apiReq.ApiRequest.Params["limit"] = "1000"
-	//apiReq.Call()
+	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[len(apiResponse.Data.([]data.FirewallLogEntry))-1].Digest
+	apiReq.ApiRequest.Params["limit"] = "10000"
+	apiReq.Call()
 }

@@ -27,14 +27,14 @@ type IfaceStatistic struct {
 	Mtu int `json:"mtu"`
 	Network string `json:"network"`
 	Address string `json:"address"`
-	ReceivedPackets string `json:"received-packets"`
-	ReceivedErrors string `json:"received-errors"`
-	DroppedPackets string `json:"dropped-packets"`
-	ReceivedBytes string `json:"received-bytes"`
-	SentPackets string `json:"sent-packets"`
-	SendErrors string `json:"send-errors"`
-	SentBytes string `json:"sent-bytes"`
-	Collisions string `json:"collisions"`
+	ReceivedPackets uint64 `json:"received-packets"`
+	ReceivedErrors uint64 `json:"received-errors"`
+	DroppedPackets uint64 `json:"dropped-packets"`
+	ReceivedBytes uint64 `json:"received-bytes"`
+	SentPackets uint64 `json:"sent-packets"`
+	SendErrors uint64 `json:"send-errors"`
+	SentBytes uint64 `json:"sent-bytes"`
+	Collisions uint64 `json:"collisions"`
 }
 
 //----------------------------------------------------------------------------

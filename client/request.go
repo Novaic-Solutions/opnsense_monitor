@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	//"github.com/davecgh/go-spew/spew"
-	//"reflect"
 	"bytes"
 	"time"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
@@ -150,5 +148,5 @@ func (req *Request) Call() {
 	req.ResponseChannel <- apiResponse
 
 	time.Sleep(15 * time.Second)
-	//req.Call()
+	req.Call()
 }
