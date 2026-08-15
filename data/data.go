@@ -208,3 +208,15 @@ type FirewallLogEntry struct {
 	Digest string `json:"__digest__"`
 	Label string `json:"label"`
 }
+
+
+
+//------------------------------------------------------------------------------
+//  Struct for holding all of the data from API Responses and for 
+//  updating them.  Also will be used to create the data that is sent to the web 
+// 	page for display.  This will be updated by the server with data from the 
+//  clients that is gathered from the channel.
+//------------------------------------------------------------------------------
+type OpnSenseData struct {
+	
+}
