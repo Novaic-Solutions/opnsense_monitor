@@ -85,26 +85,31 @@ import (
 // # TYPE interface_statistics_received_errors counter
 // interface_statistics_received_errors{name="", flags="", mtu="", address=""} value
 
-
+//----------------------------------------------------------------------------
 
 
 //----------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_pf_top"
+// Firewall -> Diagnostics -> Sessions
 //----------------------------------------------------------------------------
 //  response_obj_type: "FirewallSessions"
 
 //----------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_states"
+// Firewall -> Diagnostics -> States
 //----------------------------------------------------------------------------
 // response_obj_type: "FirewallStates"
 
 
 //----------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/pf_statistics/interfaces"
+// Firewall -> Diagnostics -> Statistics -> Interfaces Tab
 //----------------------------------------------------------------------------
 // response_obj_type: "Interfaces"
 
 //----------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/log"
+// Firewall -> Log Files -> Live View
 //----------------------------------------------------------------------------
+// Count the number of log entries for each type of log.
 // response_obj_type: "FirewallLogEntry"
