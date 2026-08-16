@@ -1,9 +1,40 @@
 package data
 
 import (
-	//"fmt"
-	//"github.com/Novaic-Solutions/opnsense_monitor/config"
+	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
+
+
+type DataHandler struct {
+	Metrics map[string]uint64
+	Incoming chan config.EndpointResponse
+	Outgoing chan []string
+}
+
+
+func (dh *DataHandler) HandleIncomingData() {
+
+	for incomingData := range dh.Incoming {
+		// Process the incoming data and update the Metrics map
+		switch incomingData.ResponseDataType {
+		case "FirewallLogEntry":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		case "ArpTable":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		case "IfaceStatistics":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		case "FirewallSessions":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		case "FirewallStates":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		case "Interfaces":
+			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+		default:
+			// Handle unknown response data types if necessary
+		}
+	}
+
+}
 
 
 //----------------------------------------------------------------------------------------------
