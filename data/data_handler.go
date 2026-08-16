@@ -44,7 +44,7 @@ func (dh *DataHandler) HandleIncomingData() {
 
 }
 
-//----------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Naming convention for the prometheus metrics
 // prometheus_metric_name{label="value"} value
 // 
@@ -52,7 +52,6 @@ func (dh *DataHandler) HandleIncomingData() {
 // # HELP prometheus_metric_name description of the metric including the measurement units
 // # TYPE prometheus_metric_name type of metric (counter, gauge, histogram, summary)
 //----------------------------------------------------------------------------------------------
-
 
 //----------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/interface/search_arp/"
@@ -70,13 +69,15 @@ func (dh *DataHandler) HandleIncomingData() {
 
 // Prometheus metrics will be generated for each entry in the ARP table as follows:
 // arp_table_entry{ip="", mac="", interface="", manufacturer="", hostname=""} 1
+//-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) ProcessArpTableData(arpTable ArpTable) {
+	// Create the key string for the prometheus metric
+	
+}
 
-//----------------------------------------------------------------------------
 
 
-
-
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/interface/getInterfaceStatistics"
 // Interfaces -> Diagnostics -> Netstat
 //----------------------------------------------------------------------------
@@ -114,10 +115,10 @@ func (dh *DataHandler) HandleIncomingData() {
 // # TYPE interface_statistics_received_errors counter
 // interface_statistics_received_errors{name="", flags="", mtu="", address=""} value
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_pf_top"
 // Firewall -> Diagnostics -> Sessions
 //----------------------------------------------------------------------------
@@ -149,10 +150,10 @@ func (dh *DataHandler) HandleIncomingData() {
 //		# TYPE firewall_session_bytes counter
 // 		firewall_session_bytes{src_ip="", src_port="", dst_ip="", dst_port="", proto="", state="", dir="", age="", expirs="", descr=""} bytes
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_states"
 // Firewall -> Diagnostics -> States
 //----------------------------------------------------------------------------
@@ -184,10 +185,10 @@ func (dh *DataHandler) HandleIncomingData() {
 //	  	# HELP firewall_state_bytes  Total bytes passed through the firewall state
 //		# TYPE firewall_state_bytes counter
 // 		firewall_state_bytes{label="", descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", ipproto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} bytes
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/pf_statistics/interfaces"
 // Firewall -> Diagnostics -> Statistics -> Interfaces Tab
 //----------------------------------------------------------------------------
@@ -220,10 +221,10 @@ func (dh *DataHandler) HandleIncomingData() {
 //		# HELP firewall_interface_out6_block_bytes  Total number of IPv6 bytes blocked by the interface
 //		# TYPE firewall_interface_out6_block_bytes counter
 // 		firewall_interface_statistics_out6_block_bytes{interface=""} out6_block_bytes
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/log"
 // Firewall -> Log Files -> Live View
 //     Used as live traffic counters for now
@@ -250,4 +251,4 @@ func (dh *DataHandler) HandleIncomingData() {
 //		# TYPE firewall_log_entries counter
 // 		firewall_log_entries{interface="", action="", src="", dst="", protoname="", src_port="", dst_port="", rulenr="", ipversion=""} count
 //      ...
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
