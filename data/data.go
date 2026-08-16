@@ -137,6 +137,7 @@ type FirewallSession struct {
 	Dst_port string `json:"dst_port"`
 	Gw_addr string `json:"gw_addr"`
 	Gw_port string `json:"gw_port"`
+	State string `json:"state"`
 	Age int `json:"age"`
 	Expire int `json:"expire"`
 	Pkts int `json:"pkts"`
