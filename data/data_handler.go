@@ -1,3 +1,11 @@
+//----------------------------------------------------------------------------------------------
+// The application will store the data in a in-memory database (map).
+// 
+// As the data comes in from the API responses, the map will either be updated with the
+// new data, or if the data is new, it will be added to the map. 
+// It could also possibly just be added to a splice depending on the endpoint
+// and the data being returned as well as what prometheus metrics are being generated for that data.
+//----------------------------------------------------------------------------------------------
 package data
 
 import (
@@ -35,16 +43,6 @@ func (dh *DataHandler) HandleIncomingData() {
 	}
 
 }
-
-
-//----------------------------------------------------------------------------------------------
-// The application will store the data in a in-memory database (map).
-// 
-// As the data comes in from the API responses, the map will either be updated with the
-// new data, or if the data is new, it will be added to the map. 
-// It could also possibly just be added to a splice depending on the endpoint
-// and the data being returned as well as what prometheus metrics are being generated for that data.
-//----------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------
 // Naming convention for the prometheus metrics
