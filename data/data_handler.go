@@ -11,11 +11,14 @@ package data
 import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"fmt"
+	"time"
+	"strings"
 )
 
 
 type DataHandler struct {
 	Metrics map[string]uint64
+	MetricsLastUpdated map[string]time.Time
 	Incoming chan config.EndpointResponse
 	Outgoing chan []string
 }
@@ -28,22 +31,118 @@ func (dh *DataHandler) HandleIncomingData() {
 		switch incomingData.ResponseDataType {
 		case "FirewallLogEntry":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessFirewallLogEntries(incomingData.Data.([]FirewallLogEntry))
 		case "ArpTable":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
 			dh.ProcessArpTable(incomingData.Data.(ArpTable))
 		case "IfaceStatistics":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessIfaceStatistics(incomingData.Data.(IfaceStatistics))
 		case "FirewallSessions":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessFirewallSessions(incomingData.Data.(FirewallSessions))
 		case "FirewallStates":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessFirewallStates(incomingData.Data.(FirewallStates))
 		case "Interfaces":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessInterfaces(incomingData.Data.(Interfaces))
 		default:
 			// Handle unknown response data types if necessary
+			fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
 		}
 	}
+}
 
+func NewDataHandler(incoming chan config.EndpointResponse, outgoing chan []string) *DataHandler {
+	return &DataHandler{
+		Metrics: make(map[string]uint64),
+		MetricsLastUpdated: make(map[string]time.Time),
+		Incoming: incoming,
+		Outgoing: outgoing,
+	}
+}
+
+func (dh *DataHandler) CreateMetricsString() string {
+	metricsString := ""
+
+}
+
+func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
+	switch {
+		//-------------------------------------------------------------------------------
+		// ARP Table Metrics
+		//----------------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "arp_table_entry"):
+			return "# HELP arp_table_entry Total number of entries in the ARP table\n# TYPE arp_table_entry counter\n"
+		
+		//-----------------------------------------------------------------------
+		// Interface Statistics
+		//-----------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "interface_statistic"):
+			measurement := ""
+			if strings.HasSuffix(metricName, "received_packets") {
+				measurement = "packets"
+			} else if strings.HasSuffix(metricName, "received_errors") {
+				measurement = "errors"
+			} else if strings.HasSuffix(metricName, "dropped_packets") {
+				measurement = "packets"
+			}
+
+			return "# HELP " + metricName + " Number of " + measurement + " on the interface\n# TYPE " + metricName + " counter\n"
+		
+		//-----------------------------------------------------------------------
+		// Firewall Sessions
+		//-----------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "firewall_session"):
+			measurement := ""
+			if strings.HasSuffix(metricName, "packets") {
+				measurement = "packets"
+			} else if strings.HasSuffix(metricName, "bytes") {
+				measurement = "bytes"
+			}
+
+			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall session\n# TYPE " + metricName + " counter\n"
+
+		//-----------------------------------------------------------------------
+		// Firewall States
+		//-----------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "firewall_state"):
+			measurement := ""
+			if strings.HasSuffix(metricName, "packets") {
+				measurement = "packets"
+			} else if strings.HasSuffix(metricName, "bytes") {
+				measurement = "bytes"
+			}
+			
+			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall state\n# TYPE " + metricName + " counter\n"
+		
+		//-----------------------------------------------------------------------
+		// Firewall Interface Statistics
+		//-----------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "firewall_interface_statistics"):
+			measurement := ""
+			if strings.HasSuffix(metricName, "packets") {
+				measurement = "packets"
+			} else if strings.HasSuffix(metricName, "bytes") {
+				measurement = "bytes"
+			} else if strings.HasSuffix(metricName, "errors") {
+				measurement = "errors"
+			} else if strings.HasSuffix(metricName, "collisions") {
+				measurement = "collisions"
+			}
+
+			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall interface\n# TYPE " + metricName + " counter\n"
+		
+		//-----------------------------------------------------------------------
+		// Firewall Log Entries
+		//-----------------------------------------------------------------------
+		case strings.HasPrefix(metricName, "firewall_log_entries"):
+			return "# HELP firewall_log_entries Total number of log entries for the unique combination of values\n# TYPE firewall_log_entries counter\n"
+		
+		default:
+			return ""
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -95,9 +194,8 @@ func (dh *DataHandler) ProcessArpTableEntry(arpEntry ArpTableEntry) {
 	} else {
 		dh.Metrics[keyTitle]++
 	}
+	dh.MetricsLastUpdated[keyTitle] = time.Now()
 }
-
-
 
 //-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/interface/getInterfaceStatistics"
@@ -138,12 +236,6 @@ func (dh *DataHandler) ProcessArpTableEntry(arpEntry ArpTableEntry) {
 // interface_statistics_received_errors{name="", flags="", mtu="", address=""} value
 
 //-------------------------------------------------------------------------------------------------------------------
-func (dh *DataHandler) GetIfaceStatisticsTitle(ifaceStat IfaceStatistic) string {
-	// Create the key string for the prometheus metric
-	keyTitle := "interface_statistics{name=\"" + ifaceStat.Name + "\", flags=\"" + ifaceStat.Flags + "\", mtu=\"" + fmt.Sprintf("%d", ifaceStat.Mtu) + "\", address=\"" + ifaceStat.Address + "\"}"
-	return keyTitle
-}
-
 func (dh *DataHandler) ProcessIfaceStatistics(ifaceStats IfaceStatistics) {
 	for _, value := range ifaceStats.Statistics {
 		dh.ProcessIfaceStatistic(value)
@@ -151,15 +243,15 @@ func (dh *DataHandler) ProcessIfaceStatistics(ifaceStats IfaceStatistics) {
 }
 
 func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
-	keyTitle := dh.GetIfaceStatisticsTitle(ifaceStat)
-	dh.Metrics[keyTitle + "_received_packets"] = ifaceStat.ReceivedPackets
-	dh.Metrics[keyTitle + "_received_errors"] = ifaceStat.ReceivedErrors
-	dh.Metrics[keyTitle + "_dropped_packets"] = ifaceStat.DroppedPackets
-	dh.Metrics[keyTitle + "_received_bytes"] = ifaceStat.ReceivedBytes
-	dh.Metrics[keyTitle + "_sent_packets"] = ifaceStat.SentPackets
-	dh.Metrics[keyTitle + "_send_errors"] = ifaceStat.SendErrors
-	dh.Metrics[keyTitle + "_sent_bytes"] = ifaceStat.SentBytes
-	dh.Metrics[keyTitle + "_collisions"] = ifaceStat.Collisions
+	keyTitle := "{name=\"" + ifaceStat.Name + "\", flags=\"" + ifaceStat.Flags + "\", mtu=\"" + fmt.Sprintf("%d", ifaceStat.Mtu) + "\", address=\"" + ifaceStat.Address + "\"}"
+	dh.Metrics["interface_statistic_received_packets" + keyTitle] = ifaceStat.ReceivedPackets
+	dh.Metrics["interface_statistic_received_errors" + keyTitle] = ifaceStat.ReceivedErrors
+	dh.Metrics["interface_statistic_dropped_packets" + keyTitle] = ifaceStat.DroppedPackets
+	dh.Metrics["interface_statistic_received_bytes" + keyTitle] = ifaceStat.ReceivedBytes
+	dh.Metrics["interface_statistic_sent_packets" + keyTitle] = ifaceStat.SentPackets
+	dh.Metrics["interface_statistic_send_errors" + keyTitle] = ifaceStat.SendErrors
+	dh.Metrics["interface_statistic_sent_bytes" + keyTitle] = ifaceStat.SentBytes
+	dh.Metrics["interface_statistic_collisions" + keyTitle] = ifaceStat.Collisions
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -195,7 +287,17 @@ func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
 // 		firewall_session_bytes{src_ip="", src_port="", dst_ip="", dst_port="", proto="", state="", dir="", age="", expirs="", descr=""} bytes
 
 //-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) ProcessFirewallSessions(fwSessions FirewallSessions) {
+	for _, fwSession := range fwSessions.Rows {
+		dh.ProcessFirewallSession(fwSession)
+	}
+}
 
+func (dh *DataHandler) ProcessFirewallSession(fwSession FirewallSession) {
+	keyTitle := "{src_ip=\"" + fwSession.Src_addr + "\", src_port=\"" + fwSession.Src_port + "\", dst_ip=\"" + fwSession.Dst_addr + "\", dst_port=\"" + fwSession.Dst_port + "\", proto=\"" + fwSession.Proto + "\", state=\"" + fwSession.State + "\", dir=\"" + fwSession.Dir + "\", age=\"" + fmt.Sprintf("%d", fwSession.Age) + "\", expires=\"" + fmt.Sprintf("%d", fwSession.Expire) + "\", descr=\"" + fwSession.Descr + "\"}"
+	dh.Metrics["firewall_session_packets" + keyTitle] = uint64(fwSession.Pkts)
+	dh.Metrics["firewall_session_bytes" + keyTitle] = uint64(fwSession.Bytes)
+}
 
 //-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_states"
@@ -230,7 +332,19 @@ func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
 //		# TYPE firewall_state_bytes counter
 // 		firewall_state_bytes{label="", descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", ipproto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} bytes
 //-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) ProcessFirewallStates(fwStates FirewallStates) {
+	for _, fwState := range fwStates.Rows {
+		dh.ProcessFirewallState(fwState)
+	}
+}
 
+func (dh *DataHandler) ProcessFirewallState(fwState FirewallState) {
+	keyTitle := "{label=\"" + fwState.Label + "\", descr=\"" + fwState.Descr + "\", nat_addr=\"" + fwState.Nat_addr + "\", nat_port=\"" + fwState.Nat_port + "\", gateway=\"" + fwState.Gateway + "\", interface=\"" + fwState.Interface + "\", proto=\"" + fwState.Proto + "\", ipproto=\"" + fwState.Ipproto + "\", direction=\"" + fwState.Direction + "\", dst_addr=\"" + fwState.Dst_addr + "\", dst_port=\"" + fwState.Dst_port + "\", src_addr=\"" + fwState.Src_addr + "\", src_port=\"" + fwState.Src_port + "\", state=\"" + fwState.State + "\"}"
+	dh.Metrics["firewall_state_packets" + keyTitle] = uint64(fwState.Pkts[0]) // Assuming Pkts is a slice with at least one element
+	dh.MetricsLastUpdated["firewall_state_packets" + keyTitle] = time.Now()
+	dh.Metrics["firewall_state_bytes" + keyTitle] = uint64(fwState.Bytes[0]) // Assuming Bytes is a slice with at least one element
+	dh.MetricsLastUpdated["firewall_state_bytes" + keyTitle] = time.Now()
+}
 
 //-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/pf_statistics/interfaces"
@@ -266,7 +380,31 @@ func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
 //		# TYPE firewall_interface_out6_block_bytes counter
 // 		firewall_interface_statistics_out6_block_bytes{interface=""} out6_block_bytes
 //-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) ProcessInterfaces(interfaces Interfaces) {
+	for ifaceName, ifaceTraffic := range interfaces.Interfaces {
+		dh.ProcessInterfaceTraffic(ifaceName, ifaceTraffic)
+	}
+}
 
+func (dh *DataHandler) ProcessInterfaceTraffic(ifaceName string, ifaceTraffic IfaceTraffic) {
+	keyTitle := "{interface=\"" + ifaceName + "\"}"
+	dh.Metrics["firewall_interface_statistics_in4_pass_packets" + keyTitle] = ifaceTraffic.In4_pass_packets
+	dh.Metrics["firewall_interface_statistics_in4_pass_bytes" + keyTitle] = ifaceTraffic.In4_pass_bytes
+	dh.Metrics["firewall_interface_statistics_in4_block_packets" + keyTitle] = ifaceTraffic.In4_block_packets
+	dh.Metrics["firewall_interface_statistics_in4_block_bytes" + keyTitle] = ifaceTraffic.In4_block_bytes
+	dh.Metrics["firewall_interface_statistics_out4_pass_packets" + keyTitle] = ifaceTraffic.Out4_pass_packets
+	dh.Metrics["firewall_interface_statistics_out4_pass_bytes" + keyTitle] = ifaceTraffic.Out4_pass_bytes
+	dh.Metrics["firewall_interface_statistics_out4_block_packets" + keyTitle] = ifaceTraffic.Out4_block_packets
+	dh.Metrics["firewall_interface_statistics_out4_block_bytes" + keyTitle] = ifaceTraffic.Out4_block_bytes
+	dh.Metrics["firewall_interface_statistics_in6_pass_packets" + keyTitle] = ifaceTraffic.In6_pass_packets
+	dh.Metrics["firewall_interface_statistics_in6_pass_bytes" + keyTitle] = ifaceTraffic.In6_pass_bytes
+	dh.Metrics["firewall_interface_statistics_in6_block_packets" + keyTitle] = ifaceTraffic.In6_block_packets
+	dh.Metrics["firewall_interface_statistics_in6_block_bytes" + keyTitle] = ifaceTraffic.In6_block_bytes
+	dh.Metrics["firewall_interface_statistics_out6_pass_packets" + keyTitle] = ifaceTraffic.Out6_pass_packets
+	dh.Metrics["firewall_interface_statistics_out6_pass_bytes" + keyTitle] = ifaceTraffic.Out6_pass_bytes
+	dh.Metrics["firewall_interface_statistics_out6_block_packets" + keyTitle] = ifaceTraffic.Out6_block_packets
+	dh.Metrics["firewall_interface_statistics_out6_block_bytes" + keyTitle] = ifaceTraffic.Out6_block_bytes
+}
 
 //-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/log"
@@ -296,3 +434,18 @@ func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
 // 		firewall_log_entries{interface="", action="", src="", dst="", protoname="", src_port="", dst_port="", rulenr="", ipversion=""} count
 //      ...
 //-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) ProcessFirewallLogEntries(fwLogEntries []FirewallLogEntry) {
+	for _, fwLogEntry := range fwLogEntries {
+		dh.ProcessFirewallLogEntry(fwLogEntry)
+	}
+}
+
+func (dh *DataHandler) ProcessFirewallLogEntry(fwLogEntry FirewallLogEntry) {
+	keyTitle := "{interface=\"" + fwLogEntry.Interface + "\", action=\"" + fwLogEntry.Action + "\", src=\"" + fwLogEntry.Src + "\", dst=\"" + fwLogEntry.Dst + "\", protoname=\"" + fwLogEntry.Protoname + "\", src_port=\"" + fmt.Sprintf("%d", fwLogEntry.Srcport) + "\", dst_port=\"" + fmt.Sprintf("%d", fwLogEntry.Dstport) + "\", rulenr=\"" + fmt.Sprintf("%d", fwLogEntry.Rulenr) + "\", ipversion=\"" + fmt.Sprintf("%d", fwLogEntry.Ipversion) + "\"}"
+	if _, exists := dh.Metrics["firewall_log_entries"+keyTitle]; !exists {
+		dh.Metrics["firewall_log_entries"+keyTitle] = 1
+	} else {
+		dh.Metrics["firewall_log_entries"+keyTitle]++
+	}
+	dh.MetricsLastUpdated["firewall_log_entries"+keyTitle] = time.Now()
+}
