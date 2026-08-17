@@ -10,6 +10,7 @@ package data
 
 import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
+	"fmt"
 )
 
 
@@ -29,6 +30,7 @@ func (dh *DataHandler) HandleIncomingData() {
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
 		case "ArpTable":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			dh.ProcessArpTable(incomingData.Data.(ArpTable))
 		case "IfaceStatistics":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
 		case "FirewallSessions":
@@ -136,7 +138,29 @@ func (dh *DataHandler) ProcessArpTableEntry(arpEntry ArpTableEntry) {
 // interface_statistics_received_errors{name="", flags="", mtu="", address=""} value
 
 //-------------------------------------------------------------------------------------------------------------------
+func (dh *DataHandler) GetIfaceStatisticsTitle(ifaceStat IfaceStatistic) string {
+	// Create the key string for the prometheus metric
+	keyTitle := "interface_statistics{name=\"" + ifaceStat.Name + "\", flags=\"" + ifaceStat.Flags + "\", mtu=\"" + fmt.Sprintf("%d", ifaceStat.Mtu) + "\", address=\"" + ifaceStat.Address + "\"}"
+	return keyTitle
+}
 
+func (dh *DataHandler) ProcessIfaceStatistics(ifaceStats IfaceStatistics) {
+	for _, value := range ifaceStats.Statistics {
+		dh.ProcessIfaceStatistic(value)
+	}
+}
+
+func (dh *DataHandler) ProcessIfaceStatistic(ifaceStat IfaceStatistic) {
+	keyTitle := dh.GetIfaceStatisticsTitle(ifaceStat)
+	dh.Metrics[keyTitle + "_received_packets"] = ifaceStat.ReceivedPackets
+	dh.Metrics[keyTitle + "_received_errors"] = ifaceStat.ReceivedErrors
+	dh.Metrics[keyTitle + "_dropped_packets"] = ifaceStat.DroppedPackets
+	dh.Metrics[keyTitle + "_received_bytes"] = ifaceStat.ReceivedBytes
+	dh.Metrics[keyTitle + "_sent_packets"] = ifaceStat.SentPackets
+	dh.Metrics[keyTitle + "_send_errors"] = ifaceStat.SendErrors
+	dh.Metrics[keyTitle + "_sent_bytes"] = ifaceStat.SentBytes
+	dh.Metrics[keyTitle + "_collisions"] = ifaceStat.Collisions
+}
 
 //-------------------------------------------------------------------------------------------------------------------
 // Metrics for "/api/diagnostics/firewall/query_pf_top"
