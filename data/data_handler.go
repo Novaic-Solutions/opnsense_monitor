@@ -20,6 +20,7 @@ type DataHandler struct {
 	Metrics map[string]uint64
 	MetricsLastUpdated map[string]time.Time
 	Incoming chan config.EndpointResponse
+	Request chan string
 	Outgoing chan []string
 }
 
@@ -65,7 +66,37 @@ func NewDataHandler(incoming chan config.EndpointResponse, outgoing chan []strin
 
 func (dh *DataHandler) CreateMetricsString() string {
 	metricsString := ""
+	firewallIfaceStatistics := 0
+	firewallLogEnginers := 0
 
+	for metricName, metricValue := range dh.Metrics {
+		// Create the help and type lines for the metric
+		if strings.HasPrefix(metricName, "firewall_interface_statistics") {
+			if firewallIfaceStatistics == 0 {
+				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
+				if helpAndTypeLines != "" {
+					metricsString += helpAndTypeLines
+				}
+				firewallIfaceStatistics++
+			}
+		} else if strings.HasPrefix(metricName, "firewall_log_entries") {
+			if firewallLogEnginers == 0 {
+				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
+				if helpAndTypeLines != "" {
+					metricsString += helpAndTypeLines
+				}
+				firewallLogEnginers++
+			}
+		} else {
+			helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
+			if helpAndTypeLines != "" {
+				metricsString += helpAndTypeLines
+			}
+		}
+		metricsString += fmt.Sprintf("%s %d\n", metricName, metricValue)
+	}
+
+	return metricsString
 }
 
 func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
@@ -81,15 +112,21 @@ func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 		//-----------------------------------------------------------------------
 		case strings.HasPrefix(metricName, "interface_statistic"):
 			measurement := ""
-			if strings.HasSuffix(metricName, "received_packets") {
+			if strings.HasSuffix(metricName, "packets") {
 				measurement = "packets"
-			} else if strings.HasSuffix(metricName, "received_errors") {
+			} else if strings.HasSuffix(metricName, "errors") {
 				measurement = "errors"
-			} else if strings.HasSuffix(metricName, "dropped_packets") {
-				measurement = "packets"
+			} else if strings.HasSuffix(metricName, "bytes") {
+				measurement = "bytes"
 			}
 
-			return "# HELP " + metricName + " Number of " + measurement + " on the interface\n# TYPE " + metricName + " counter\n"
+			nameSplit := strings.Split(metricName, "_")
+			measurementType := "collisions"
+			if len(nameSplit) >= 4 {
+				measurementType = nameSplit[3]
+			}
+
+			return "# HELP " + metricName + " Number of " + measurementType + " " + measurement + " on the interface\n# TYPE " + metricName + " counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Firewall Sessions
@@ -121,18 +158,19 @@ func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 		// Firewall Interface Statistics
 		//-----------------------------------------------------------------------
 		case strings.HasPrefix(metricName, "firewall_interface_statistics"):
-			measurement := ""
-			if strings.HasSuffix(metricName, "packets") {
-				measurement = "packets"
-			} else if strings.HasSuffix(metricName, "bytes") {
-				measurement = "bytes"
-			} else if strings.HasSuffix(metricName, "errors") {
-				measurement = "errors"
-			} else if strings.HasSuffix(metricName, "collisions") {
-				measurement = "collisions"
-			}
+			// These may not be needed currently, but I am leaving them here in case its decided at a later date
+			// to split the metrics up into packets, bytes, errors, and collisions.  For now, they are all just counters for the interface.
+			// if strings.HasSuffix(metricName, "packets") {
+			// 	measurement = "packets"
+			// } else if strings.HasSuffix(metricName, "bytes") {
+			// 	measurement = "bytes"
+			// } else if strings.HasSuffix(metricName, "errors") {
+			// 	measurement = "errors"
+			// } else if strings.HasSuffix(metricName, "collisions") {
+			// 	measurement = "collisions"
+			// }
 
-			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall interface\n# TYPE " + metricName + " counter\n"
+			return "# HELP " + metricName + " Total number of all statistics for the firewall interface\n# TYPE " + metricName + " counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Firewall Log Entries
