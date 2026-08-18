@@ -479,7 +479,7 @@ func (dh *DataHandler) ProcessFirewallLogEntries(fwLogEntries []FirewallLogEntry
 }
 
 func (dh *DataHandler) ProcessFirewallLogEntry(fwLogEntry FirewallLogEntry) {
-	keyTitle := "{interface=\"" + fwLogEntry.Interface + "\", action=\"" + fwLogEntry.Action + "\", src=\"" + fwLogEntry.Src + "\", dst=\"" + fwLogEntry.Dst + "\", protoname=\"" + fwLogEntry.Protoname + "\", src_port=\"" + fmt.Sprintf("%d", fwLogEntry.Srcport) + "\", dst_port=\"" + fmt.Sprintf("%d", fwLogEntry.Dstport) + "\", rulenr=\"" + fmt.Sprintf("%d", fwLogEntry.Rulenr) + "\", ipversion=\"" + fmt.Sprintf("%d", fwLogEntry.Ipversion) + "\"}"
+	keyTitle := "{interface=\"" + fwLogEntry.Interface + "\", action=\"" + fwLogEntry.Action + "\", src=\"" + fwLogEntry.Src + "\", dst=\"" + fwLogEntry.Dst + "\", protoname=\"" + fwLogEntry.Protoname + "\", src_port=\"" + fwLogEntry.Srcport + "\", dst_port=\"" + fwLogEntry.Dstport + "\", rulenr=\"" + fwLogEntry.Rulenr + "\", ipversion=\"" + fwLogEntry.Ipversion + "\"}"
 	if _, exists := dh.Metrics["firewall_log_entries"+keyTitle]; !exists {
 		dh.Metrics["firewall_log_entries"+keyTitle] = 1
 	} else {
