@@ -3,12 +3,10 @@ package main
 import (
 	"embed"
 	"fmt"
-	//
-	"reflect"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
-	//"github.com/Novaic-Solutions/opnsense_monitor/data"
-	// "github.com/Novaic-Solutions/opnsense_monitor/server"
+	"github.com/Novaic-Solutions/opnsense_monitor/data"
+	"github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
 //----------------------------------------------------------------------------
@@ -34,21 +32,17 @@ func init() {
 	// Not used yet in this application, but could be used in the future.
 }
 
-func testChannel(responseChannel chan config.EndpointResponse) {
-	for responseData := range responseChannel {
-		fmt.Printf("---------------------------------\n")
-		fmt.Printf("TestChannel -- Received data from channel: %s\n", reflect.TypeOf(responseData.Data))
-		fmt.Printf("TestChannel -- Received data from channel: %v\n", responseData.ResponseDataType)
-		fmt.Printf("---------------------------------\n")
-	}
-}
-
 //----------------------------------------------------------------------------
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
 	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
+	requestChannel := make(chan string, 5)
+	outgoingChannel := make(chan string, 5)
+
+	dataHandler := data.NewDataHandler(requestChannel, responseChannel, outgoingChannel)
+
 	fmt.Println("Opnsense_monitor: Starting application...")
 
 	//-------------------------------------------------------------------------------
@@ -56,6 +50,12 @@ func main() {
 	//-------------------------------------------------------------------------------
 	conf := config.LoadConfig(yamlFile)
 	fmt.Printf("Opnsense_monitor: Loaded config: %+v\n", conf)
+
+	//-------------------------------------------------------------------------------
+	//	Start Data Handler routines.
+	//-------------------------------------------------------------------------------
+	go dataHandler.HandleIncomingData()
+	go dataHandler.HandleRequests()
 
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
@@ -79,31 +79,15 @@ func main() {
 		go client.Call()
 	}
 
-	testChannel(responseChannel)
-
-	//-------------------------------------------------------------------------------
-	// Populate the requestClient slice with a Caller for each of the endpoints
-	// in the config file.
-	//-------------------------------------------------------------------------------
-
-	//-------------------------------------------------------------------
-	//	   Start client jobs for retrieving json from api endpoints
-	//-------------------------------------------------------------------
-	// Here, eventually, loop over the clients and start go routines for
-	// each one.
-
-	//-------------------------------------------------------------------
-	//     Create the web server to serve the json data to the web page
-	//-------------------------------------------------------------------
-	// server := &server.Server{
-	// 	Port:            conf.Server.Port,
-	// 	Host:            conf.Server.Host,
-	// 	Conf:            conf,
-	// 	ResponseChannel: responseChannel,
-	// }
-
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
 	//-------------------------------------------------------------------
-	// server.StartServer()
+	server := &server.Server{
+		Port:			conf.Server.Port,
+		Host:			conf.Server.Host,
+		Conf:			conf,
+		RequestChannel:		requestChannel,
+		OutgoingChannel:	outgoingChannel,
+	}
+	server.StartServer()
 }

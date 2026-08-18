@@ -21,10 +21,13 @@ type DataHandler struct {
 	MetricsLastUpdated map[string]time.Time
 	Incoming chan config.EndpointResponse
 	Request chan string
-	Outgoing chan []string
+	Outgoing chan string
 }
 
-
+//-----------------------------------------------------------------------------
+//  This will be used in a go rountine to handle the incoming data from 
+//  the clients API responses and update the Metrics map with the data.
+//-----------------------------------------------------------------------------
 func (dh *DataHandler) HandleIncomingData() {
 
 	for incomingData := range dh.Incoming {
@@ -52,13 +55,41 @@ func (dh *DataHandler) HandleIncomingData() {
 			// Handle unknown response data types if necessary
 			fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
 		}
+
+		dh.ClearOldData()
 	}
 }
 
-func NewDataHandler(incoming chan config.EndpointResponse, outgoing chan []string) *DataHandler {
+func (dh *DataHandler) ClearOldData() {
+	// Implement logic to clear old data from Metrics and MetricsLastUpdated maps
+	for metricName, lastUpdated := range dh.MetricsLastUpdated {
+		if time.Since(lastUpdated) > time.Hour {
+			delete(dh.Metrics, metricName)
+			delete(dh.MetricsLastUpdated, metricName)
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+// This will be used in a go routine to handle the requests from the main application
+//----------------------------------------------------------------------------
+func (dh *DataHandler) HandleRequests() {
+	for request := range dh.Request {
+		switch request {
+		case "metrics":
+			metricsString := dh.CreateMetricsString()
+			dh.Outgoing <- metricsString
+		default:
+			fmt.Printf("DataHandler.HandleRequests: Unknown request: %s\n", request)
+		}
+	}
+}
+
+func NewDataHandler(request chan string, incoming chan config.EndpointResponse, outgoing chan string) *DataHandler {
 	return &DataHandler{
 		Metrics: make(map[string]uint64),
 		MetricsLastUpdated: make(map[string]time.Time),
+		Request: request,
 		Incoming: incoming,
 		Outgoing: outgoing,
 	}
