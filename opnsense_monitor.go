@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"sync"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
@@ -36,12 +37,13 @@ func init() {
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
+	dataMutex := new(sync.Mutex)
 	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
 	requestChannel := make(chan string, 5)
 	outgoingChannel := make(chan string, 5)
 
-	dataHandler := data.NewDataHandler(requestChannel, responseChannel, outgoingChannel)
+	dataHandler := data.NewDataHandler(dataMutex, requestChannel, responseChannel, outgoingChannel)
 
 	fmt.Println("Opnsense_monitor: Starting application...")
 

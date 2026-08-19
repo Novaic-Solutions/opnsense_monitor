@@ -2,21 +2,24 @@
 // The application will store the data in a in-memory database (map).
 // 
 // As the data comes in from the API responses, the map will either be updated with the
+
 // new data, or if the data is new, it will be added to the map. 
 // It could also possibly just be added to a splice depending on the endpoint
-// and the data being returned as well as what prometheus metrics are being generated for that data.
+// and the data being returned as well as what 
+// prometheus metrics are being generated for that data.
 //----------------------------------------------------------------------------------------------
 package data
 
 import (
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"fmt"
+	"sync"
 	"time"
 	"strings"
 )
 
-
 type DataHandler struct {
+	DataMutex *sync.Mutex
 	Metrics map[string]uint64
 	MetricsLastUpdated map[string]time.Time
 	Incoming chan config.EndpointResponse
@@ -31,43 +34,61 @@ type DataHandler struct {
 func (dh *DataHandler) HandleIncomingData() {
 
 	for incomingData := range dh.Incoming {
+		
+		fmt.Printf("DataHandler.HandleIncomingData: Received data from endpoint response type: %s\n", incomingData.ResponseDataType)
+		
+		dh.DataMutex.Lock()
+
+		fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.")
+
 		// Process the incoming data and update the Metrics map
 		switch incomingData.ResponseDataType {
 		case "FirewallLogEntry":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallLogEntry data.\n")
 			dh.ProcessFirewallLogEntries(incomingData.Data.([]FirewallLogEntry))
 		case "ArpTable":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing ArpTable data.\n")
 			dh.ProcessArpTable(incomingData.Data.(ArpTable))
 		case "IfaceStatistics":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing IfaceStatistics data.\n")
 			dh.ProcessIfaceStatistics(incomingData.Data.(IfaceStatistics))
 		case "FirewallSessions":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallSessions data.\n")
 			dh.ProcessFirewallSessions(incomingData.Data.(FirewallSessions))
 		case "FirewallStates":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallStates data.\n")
 			dh.ProcessFirewallStates(incomingData.Data.(FirewallStates))
 		case "Interfaces":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
+			fmt.Printf("DataHandler.HandleIncomingData: Processing Interfaces data.\n")
 			dh.ProcessInterfaces(incomingData.Data.(Interfaces))
 		default:
 			// Handle unknown response data types if necessary
 			fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
 		}
-
+		dh.DataMutex.Unlock()
+		fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.")
+		// Clear old data from the Metrics and MetricsLastUpdated maps
 		dh.ClearOldData()
+
 	}
 }
 
 func (dh *DataHandler) ClearOldData() {
 	// Implement logic to clear old data from Metrics and MetricsLastUpdated maps
+	dh.DataMutex.Lock()
 	for metricName, lastUpdated := range dh.MetricsLastUpdated {
 		if time.Since(lastUpdated) > time.Hour {
 			delete(dh.Metrics, metricName)
 			delete(dh.MetricsLastUpdated, metricName)
 		}
 	}
+	dh.DataMutex.Unlock()
 }
 
 //----------------------------------------------------------------------------
@@ -75,9 +96,17 @@ func (dh *DataHandler) ClearOldData() {
 //----------------------------------------------------------------------------
 func (dh *DataHandler) HandleRequests() {
 	for request := range dh.Request {
+		fmt.Printf("DataHandler.HandleRequests: Received new request")
+		
+		dh.DataMutex.Lock()
+		fmt.Printf("DataHandler.HandleRequests: Mutex Locked.")
+		defer dh.DataMutex.Unlock()
+
 		switch request {
 		case "metrics":
+			fmt.Printf("DataHandler.HandleRequests: Creating metrics string.\n")
 			metricsString := dh.CreateMetricsString()
+			fmt.Printf("DataHandler.HandleRequests: Sending metrics string of length %d.\n", len(metricsString))
 			dh.Outgoing <- metricsString
 		default:
 			fmt.Printf("DataHandler.HandleRequests: Unknown request: %s\n", request)
@@ -85,8 +114,9 @@ func (dh *DataHandler) HandleRequests() {
 	}
 }
 
-func NewDataHandler(request chan string, incoming chan config.EndpointResponse, outgoing chan string) *DataHandler {
+func NewDataHandler(dataMutex *sync.Mutex, request chan string, incoming chan config.EndpointResponse, outgoing chan string) *DataHandler {
 	return &DataHandler{
+		DataMutex: dataMutex,
 		Metrics: make(map[string]uint64),
 		MetricsLastUpdated: make(map[string]time.Time),
 		Request: request,
@@ -100,8 +130,10 @@ func (dh *DataHandler) CreateMetricsString() string {
 	firewallIfaceStatistics := 0
 	firewallLogEnginers := 0
 
+	fmt.Printf("DataHandler.CreateMetricsString: Preparing to loop over metrics\n")
+
 	for metricName, metricValue := range dh.Metrics {
-		// Create the help and type lines for the metric
+		fmt.Printf("DataHandler.CreateMetricsString: Processing metric: %s with value: %d\n", metricName, metricValue)
 		if strings.HasPrefix(metricName, "firewall_interface_statistics") {
 			if firewallIfaceStatistics == 0 {
 				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)

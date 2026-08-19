@@ -20,9 +20,12 @@ type Server struct {
 //  endpoints that are being monitored.
 //----------------------------------------------------------------------------
 func (serv *Server) HandleAllRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Server.go -- Received request: %s\n", r.URL.Path)
+
     responseBytes := []byte(serv.GetData())
 	w.WriteHeader(http.StatusOK)
     w.Write(responseBytes)
+	fmt.Printf("Server.go -- Sent response: %d bytes\n", len(responseBytes))
 }
 
 func (serv *Server) GetData() string {
@@ -38,9 +41,7 @@ func (serv *Server) StartServer() {
 	//------------------------------------------------------------------------
 	// Register the request handler for all incoming requests.
 	//------------------------------------------------------------------------
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		serv.HandleAllRequest(w, r)
-	})
+	http.HandleFunc("/", serv.HandleAllRequest)
 	
 	//------------------------------------------------------------------------
 	// Create the address string for the server to listen on.
