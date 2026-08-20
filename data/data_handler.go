@@ -33,49 +33,51 @@ type DataHandler struct {
 //-----------------------------------------------------------------------------
 func (dh *DataHandler) HandleIncomingData() {
 
+	fmt.Printf("DataHandler.HandleIncomingData: Mutex Address --> %p\n", dh.DataMutex)
+
 	for incomingData := range dh.Incoming {
 		
 		fmt.Printf("DataHandler.HandleIncomingData: Received data from endpoint response type: %s\n", incomingData.ResponseDataType)
 		
 		dh.DataMutex.Lock()
 
-		fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.")
+		fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.\n")
 
 		// Process the incoming data and update the Metrics map
 		switch incomingData.ResponseDataType {
 		case "FirewallLogEntry":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallLogEntry data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallLogEntry data.\n")
 			dh.ProcessFirewallLogEntries(incomingData.Data.([]FirewallLogEntry))
 		case "ArpTable":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing ArpTable data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing ArpTable data.\n")
 			dh.ProcessArpTable(incomingData.Data.(ArpTable))
 		case "IfaceStatistics":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing IfaceStatistics data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing IfaceStatistics data.\n")
 			dh.ProcessIfaceStatistics(incomingData.Data.(IfaceStatistics))
 		case "FirewallSessions":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallSessions data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallSessions data.\n")
 			dh.ProcessFirewallSessions(incomingData.Data.(FirewallSessions))
 		case "FirewallStates":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallStates data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing FirewallStates data.\n")
 			dh.ProcessFirewallStates(incomingData.Data.(FirewallStates))
 		case "Interfaces":
 			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			fmt.Printf("DataHandler.HandleIncomingData: Processing Interfaces data.\n")
+			//fmt.Printf("DataHandler.HandleIncomingData: Processing Interfaces data.\n")
 			dh.ProcessInterfaces(incomingData.Data.(Interfaces))
 		default:
 			// Handle unknown response data types if necessary
 			fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
 		}
 		dh.DataMutex.Unlock()
-		fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.")
+		fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.\n")
 		// Clear old data from the Metrics and MetricsLastUpdated maps
+		fmt.Printf("DataHandler.HandleIncomingData: Total metrics stored: %d\n", len(dh.Metrics))
 		dh.ClearOldData()
-
 	}
 }
 
@@ -95,11 +97,14 @@ func (dh *DataHandler) ClearOldData() {
 // This will be used in a go routine to handle the requests from the main application
 //----------------------------------------------------------------------------
 func (dh *DataHandler) HandleRequests() {
+
+	fmt.Printf("DataHandler.HandleRequests: Mutex Address --> %p\n", dh.DataMutex)
+
 	for request := range dh.Request {
-		fmt.Printf("DataHandler.HandleRequests: Received new request")
-		
+		fmt.Printf("DataHandler.HandleRequests: Received new request\n")
+
 		dh.DataMutex.Lock()
-		fmt.Printf("DataHandler.HandleRequests: Mutex Locked.")
+		fmt.Printf("DataHandler.HandleRequests: Mutex Locked.\n")
 		defer dh.DataMutex.Unlock()
 
 		switch request {
@@ -114,6 +119,9 @@ func (dh *DataHandler) HandleRequests() {
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Create a new instance of the DataHandler struct and return a pointer to it
+//-----------------------------------------------------------------------------
 func NewDataHandler(dataMutex *sync.Mutex, request chan string, incoming chan config.EndpointResponse, outgoing chan string) *DataHandler {
 	return &DataHandler{
 		DataMutex: dataMutex,
@@ -128,13 +136,14 @@ func NewDataHandler(dataMutex *sync.Mutex, request chan string, incoming chan co
 func (dh *DataHandler) CreateMetricsString() string {
 	metricsString := ""
 	firewallIfaceStatistics := 0
-	firewallLogEnginers := 0
+	firewallLogEntries := 0
 
 	fmt.Printf("DataHandler.CreateMetricsString: Preparing to loop over metrics\n")
-
+	counter := 0
 	for metricName, metricValue := range dh.Metrics {
-		fmt.Printf("DataHandler.CreateMetricsString: Processing metric: %s with value: %d\n", metricName, metricValue)
-		if strings.HasPrefix(metricName, "firewall_interface_statistics") {
+		fmt.Printf("DataHandler.CreateMetricsString: Processing metric %d\n", counter)
+		//fmt.Printf("DataHandler.CreateMetricsString: Processing metric: %s\n", metricName)
+		if strings.Contains(metricName, "firewall_interface_statistics") {
 			if firewallIfaceStatistics == 0 {
 				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
 				if helpAndTypeLines != "" {
@@ -142,13 +151,13 @@ func (dh *DataHandler) CreateMetricsString() string {
 				}
 				firewallIfaceStatistics++
 			}
-		} else if strings.HasPrefix(metricName, "firewall_log_entries") {
-			if firewallLogEnginers == 0 {
+		} else if strings.Contains(metricName, "firewall_log_entries") {
+			if firewallLogEntries == 0 {
 				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
 				if helpAndTypeLines != "" {
 					metricsString += helpAndTypeLines
 				}
-				firewallLogEnginers++
+				firewallLogEntries++
 			}
 		} else {
 			helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
@@ -157,6 +166,7 @@ func (dh *DataHandler) CreateMetricsString() string {
 			}
 		}
 		metricsString += fmt.Sprintf("%s %d\n", metricName, metricValue)
+		counter++
 	}
 
 	return metricsString
@@ -167,19 +177,19 @@ func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 		//-------------------------------------------------------------------------------
 		// ARP Table Metrics
 		//----------------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "arp_table_entry"):
+		case strings.Contains(metricName, "arp_table_entry"):
 			return "# HELP arp_table_entry Total number of entries in the ARP table\n# TYPE arp_table_entry counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Interface Statistics
 		//-----------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "interface_statistic"):
+		case strings.Contains(metricName, "interface_statistic"):
 			measurement := ""
-			if strings.HasSuffix(metricName, "packets") {
+			if strings.Contains(metricName, "packets") {
 				measurement = "packets"
-			} else if strings.HasSuffix(metricName, "errors") {
+			} else if strings.Contains(metricName, "errors") {
 				measurement = "errors"
-			} else if strings.HasSuffix(metricName, "bytes") {
+			} else if strings.Contains(metricName, "bytes") {
 				measurement = "bytes"
 			}
 
@@ -189,38 +199,38 @@ func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 				measurementType = nameSplit[3]
 			}
 
-			return "# HELP " + metricName + " Number of " + measurementType + " " + measurement + " on the interface\n# TYPE " + metricName + " counter\n"
+			return "# HELP interface_statistic Number of " + measurementType + " " + measurement + " on the interface\n# TYPE interface_statistic counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Firewall Sessions
 		//-----------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "firewall_session"):
+		case strings.Contains(metricName, "firewall_session"):
 			measurement := ""
-			if strings.HasSuffix(metricName, "packets") {
+			if strings.Contains(metricName, "packets") {
 				measurement = "packets"
-			} else if strings.HasSuffix(metricName, "bytes") {
+			} else if strings.Contains(metricName, "bytes") {
 				measurement = "bytes"
 			}
 
-			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall session\n# TYPE " + metricName + " counter\n"
+			return "# HELP firewall_session Total number of " + measurement + " for the firewall session\n# TYPE firewall_session counter\n"
 
 		//-----------------------------------------------------------------------
 		// Firewall States
 		//-----------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "firewall_state"):
+		case strings.Contains(metricName, "firewall_state"):
 			measurement := ""
-			if strings.HasSuffix(metricName, "packets") {
+			if strings.Contains(metricName, "packets") {
 				measurement = "packets"
-			} else if strings.HasSuffix(metricName, "bytes") {
+			} else if strings.Contains(metricName, "bytes") {
 				measurement = "bytes"
 			}
 			
-			return "# HELP " + metricName + " Total number of " + measurement + " for the firewall state\n# TYPE " + metricName + " counter\n"
+			return "# HELP firewall_state Total number of " + measurement + " for the firewall state\n# TYPE firewall_state counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Firewall Interface Statistics
 		//-----------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "firewall_interface_statistics"):
+		case strings.Contains(metricName, "firewall_interface_statistics"):
 			// These may not be needed currently, but I am leaving them here in case its decided at a later date
 			// to split the metrics up into packets, bytes, errors, and collisions.  For now, they are all just counters for the interface.
 			// if strings.HasSuffix(metricName, "packets") {
@@ -233,12 +243,12 @@ func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 			// 	measurement = "collisions"
 			// }
 
-			return "# HELP " + metricName + " Total number of all statistics for the firewall interface\n# TYPE " + metricName + " counter\n"
+			return "# HELP firewall_interface_statistics Total number of all statistics for the firewall interface\n# TYPE firewall_interface_statistics counter\n"
 		
 		//-----------------------------------------------------------------------
 		// Firewall Log Entries
 		//-----------------------------------------------------------------------
-		case strings.HasPrefix(metricName, "firewall_log_entries"):
+		case strings.Contains(metricName, "firewall_log_entries"):
 			return "# HELP firewall_log_entries Total number of log entries for the unique combination of values\n# TYPE firewall_log_entries counter\n"
 		
 		default:
