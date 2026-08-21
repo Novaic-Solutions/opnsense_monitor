@@ -77,7 +77,7 @@ func (dh *DataHandler) HandleIncomingData() {
 		fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.\n")
 		// Clear old data from the Metrics and MetricsLastUpdated maps
 		fmt.Printf("DataHandler.HandleIncomingData: Total metrics stored: %d\n", len(dh.Metrics))
-		dh.ClearOldData()
+		//dh.ClearOldData()
 	}
 }
 
@@ -105,7 +105,6 @@ func (dh *DataHandler) HandleRequests() {
 
 		dh.DataMutex.Lock()
 		fmt.Printf("DataHandler.HandleRequests: Mutex Locked.\n")
-		defer dh.DataMutex.Unlock()
 
 		switch request {
 		case "metrics":
@@ -116,6 +115,8 @@ func (dh *DataHandler) HandleRequests() {
 		default:
 			fmt.Printf("DataHandler.HandleRequests: Unknown request: %s\n", request)
 		}
+		dh.DataMutex.Unlock()
+		fmt.Printf("DataHandler.HandleRequests: Mutex Unlocked.\n")
 	}
 }
 
@@ -133,21 +134,24 @@ func NewDataHandler(dataMutex *sync.Mutex, request chan string, incoming chan co
 	}
 }
 
+//----------------------------------------------------------------------------
+// Create the metrics string to be sent to the web page.
+// This will loop over the Metrics map and create a string in the prometheus format.
+//----------------------------------------------------------------------------
 func (dh *DataHandler) CreateMetricsString() string {
-	metricsString := ""
+	var metricsString strings.Builder
 	firewallIfaceStatistics := 0
 	firewallLogEntries := 0
 
 	fmt.Printf("DataHandler.CreateMetricsString: Preparing to loop over metrics\n")
-	counter := 0
+
 	for metricName, metricValue := range dh.Metrics {
-		fmt.Printf("DataHandler.CreateMetricsString: Processing metric %d\n", counter)
 		//fmt.Printf("DataHandler.CreateMetricsString: Processing metric: %s\n", metricName)
 		if strings.Contains(metricName, "firewall_interface_statistics") {
 			if firewallIfaceStatistics == 0 {
 				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
 				if helpAndTypeLines != "" {
-					metricsString += helpAndTypeLines
+					metricsString.WriteString(helpAndTypeLines)
 				}
 				firewallIfaceStatistics++
 			}
@@ -155,23 +159,25 @@ func (dh *DataHandler) CreateMetricsString() string {
 			if firewallLogEntries == 0 {
 				helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
 				if helpAndTypeLines != "" {
-					metricsString += helpAndTypeLines
+					metricsString.WriteString(helpAndTypeLines)
 				}
 				firewallLogEntries++
 			}
 		} else {
 			helpAndTypeLines := dh.CreateHelpAndTypeLines(metricName)
 			if helpAndTypeLines != "" {
-				metricsString += helpAndTypeLines
+				metricsString.WriteString(helpAndTypeLines)
 			}
 		}
-		metricsString += fmt.Sprintf("%s %d\n", metricName, metricValue)
-		counter++
+		metricsString.WriteString(fmt.Sprintf("%s %d\n", metricName, metricValue))
 	}
 
-	return metricsString
+	return metricsString.String()
 }
 
+//----------------------------------------------------------------------------
+// Create the # HELP and # TYPE lines for the prometheus metrics based on the metric name.
+//----------------------------------------------------------------------------
 func (dh *DataHandler) CreateHelpAndTypeLines(metricName string) string {
 	switch {
 		//-------------------------------------------------------------------------------
@@ -417,14 +423,12 @@ func (dh *DataHandler) ProcessFirewallSession(fwSession FirewallSession) {
 // response_obj_type: "FirewallStates"
 //
 // Loop over the FirewallStates, which is a slice that contains FirewallState
-// 	|--   Label
-//  |     Descr
+// 	|--   Descr
 //  |     Nat_addr
 //  |     Nat_port
 //  |     Gateway
 //  |     Interface
 //  |     Proto
-//  |     Ipproto
 //  |     Direction
 //  |     Dst_addr
 //  |     Dst_port
@@ -437,11 +441,11 @@ func (dh *DataHandler) ProcessFirewallSession(fwSession FirewallSession) {
 // Create metrics like the following for each entry in the FirewallStates slice:
 //		# HELP firewall_state_packets  Total packets passed through the firewall state
 //		# TYPE firewall_state_packets counter
-// 		firewall_state_packets{label="", descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", ipproto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} pkts
+// 		firewall_state_packets{descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} pkts
 //      ...
 //	  	# HELP firewall_state_bytes  Total bytes passed through the firewall state
 //		# TYPE firewall_state_bytes counter
-// 		firewall_state_bytes{label="", descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", ipproto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} bytes
+// 		firewall_state_bytes{descr="", nat_addr="", nat_port="", gateway="", interface="", proto="", direction="", dst_addr="", dst_port="", src_addr="", src_port="", state=""} bytes
 //-------------------------------------------------------------------------------------------------------------------
 func (dh *DataHandler) ProcessFirewallStates(fwStates FirewallStates) {
 	for _, fwState := range fwStates.Rows {
@@ -450,7 +454,7 @@ func (dh *DataHandler) ProcessFirewallStates(fwStates FirewallStates) {
 }
 
 func (dh *DataHandler) ProcessFirewallState(fwState FirewallState) {
-	keyTitle := "{label=\"" + fwState.Label + "\", descr=\"" + fwState.Descr + "\", nat_addr=\"" + fwState.Nat_addr + "\", nat_port=\"" + fwState.Nat_port + "\", gateway=\"" + fwState.Gateway + "\", interface=\"" + fwState.Interface + "\", proto=\"" + fwState.Proto + "\", ipproto=\"" + fwState.Ipproto + "\", direction=\"" + fwState.Direction + "\", dst_addr=\"" + fwState.Dst_addr + "\", dst_port=\"" + fwState.Dst_port + "\", src_addr=\"" + fwState.Src_addr + "\", src_port=\"" + fwState.Src_port + "\", state=\"" + fwState.State + "\"}"
+	keyTitle := "{descr=\"" + fwState.Descr + "\",nat_addr=\"" + fwState.Nat_addr + "\",nat_port=\"" + fwState.Nat_port + "\",gateway=\"" + fwState.Gateway + "\",interface=\"" + fwState.Interface + "\",proto=\"" + fwState.Proto + "\",direction=\"" + fwState.Direction + "\",dst_addr=\"" + fwState.Dst_addr + "\",dst_port=\"" + fwState.Dst_port + "\",src_addr=\"" + fwState.Src_addr + "\",src_port=\"" + fwState.Src_port + "\",state=\"" + fwState.State + "\"}"
 	dh.Metrics["firewall_state_packets" + keyTitle] = uint64(fwState.Pkts[0]) // Assuming Pkts is a slice with at least one element
 	dh.MetricsLastUpdated["firewall_state_packets" + keyTitle] = time.Now()
 	dh.Metrics["firewall_state_bytes" + keyTitle] = uint64(fwState.Bytes[0]) // Assuming Bytes is a slice with at least one element
@@ -532,8 +536,7 @@ func (dh *DataHandler) ProcessInterfaceTraffic(ifaceName string, ifaceTraffic If
 // |    Protoname
 // |    Src_port
 // |    Dst_port
-// |    Rulenr
-// |--  Ipversion
+// |--  Rulenr
 
 
 // Form a string for each log entry using the values from above and use it as a key in a map[string]uint64
@@ -552,7 +555,7 @@ func (dh *DataHandler) ProcessFirewallLogEntries(fwLogEntries []FirewallLogEntry
 }
 
 func (dh *DataHandler) ProcessFirewallLogEntry(fwLogEntry FirewallLogEntry) {
-	keyTitle := "{interface=\"" + fwLogEntry.Interface + "\", action=\"" + fwLogEntry.Action + "\", src=\"" + fwLogEntry.Src + "\", dst=\"" + fwLogEntry.Dst + "\", protoname=\"" + fwLogEntry.Protoname + "\", src_port=\"" + fwLogEntry.Srcport + "\", dst_port=\"" + fwLogEntry.Dstport + "\", rulenr=\"" + fwLogEntry.Rulenr + "\", ipversion=\"" + fwLogEntry.Ipversion + "\"}"
+	keyTitle := "{interface=\"" + fwLogEntry.Interface + "\",action=\"" + fwLogEntry.Action + "\",src=\"" + fwLogEntry.Src + "\",dst=\"" + fwLogEntry.Dst + "\",protoname=\"" + fwLogEntry.Protoname + "\",src_port=\"" + fwLogEntry.Srcport + "\",dst_port=\"" + fwLogEntry.Dstport + "\",rulenr=\"" + fwLogEntry.Rulenr + "}"
 	if _, exists := dh.Metrics["firewall_log_entries"+keyTitle]; !exists {
 		dh.Metrics["firewall_log_entries"+keyTitle] = 1
 	} else {

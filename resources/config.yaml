@@ -6,7 +6,7 @@ database:
   password: "my_password"
 
 server:
-  host: "192.168.1.6"
+  host: ""
   port: 9100
 
 api:

@@ -71,7 +71,7 @@ func GetResponseData(resp *http.Response) ([]byte, error) {
 		return nil, fmt.Errorf("response is nil.")
 	}
 	defer resp.Body.Close()
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading response body: %v", err)
