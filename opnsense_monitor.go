@@ -3,8 +3,10 @@ package main
 import (
 	"embed"
 	"fmt"
+	"sync"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
+	"github.com/Novaic-Solutions/opnsense_monitor/data"
 	"github.com/Novaic-Solutions/opnsense_monitor/server"
 )
 
@@ -22,30 +24,6 @@ import (
 var yamlFile embed.FS
 
 
-//------------------------------------------------------------------------------
-//	 Create the request objects for each of the API endpoints
-//------------------------------------------------------------------------------
-// func CreateApiRequests(conf *config.Config, httpClients *[]*client.Client, responseChannel chan client.EndpointResponse) error {
-// 	//-------------------------------------------------------------------
-// 	//     Create the request objects for each of the API endpoints
-// 	//     then create a client for each of the requests and start 
-// 	// 	   monitoring
-// 	//-------------------------------------------------------------------
-// 	requests, err := client.PopulateApiRequests(conf)
-// 	if err != nil {
-// 		fmt.Printf("Opnsense_monitor.go -- Error populating API requests: %v\n", err)
-// 		return err
-// 	}
-
-// 	//-------------------------------------------------------------------
-// 	//    Create a client for each of the requests and start monitoring
-// 	//-------------------------------------------------------------------
-// 	for _, req := range *requests {
-// 		*httpClients = append(*httpClients, &client.Client{ApiRequest: &req, ResponseChannel: responseChannel})
-// 	}
-// 	return nil
-// }
-
 //----------------------------------------------------------------------------
 //	Initialize the application, load the configuration, create the API requests,
 //  and start the monitoring clients.
@@ -59,45 +37,59 @@ func init() {
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
-	// Create a slice to hold the clients. One for each endpoint in the config file.
-	httpClients := make([]*client.Caller, 0, 100)
-	responseChannel := make(chan client.EndpointResponse, 100)
+	dataMutex := new(sync.Mutex)
+	var requestClients []client.Caller
+	responseChannel := make(chan config.EndpointResponse, 100)
+	requestChannel := make(chan string, 5)
+	outgoingChannel := make(chan string, 5)
 
-	fmt.Println("Starting application...")
-	
+	dataHandler := data.NewDataHandler(dataMutex, requestChannel, responseChannel, outgoingChannel)
+
+	fmt.Println("Opnsense_monitor: Starting application...")
+
+	//-------------------------------------------------------------------------------
 	// Load the configuration from the embedded config.yaml file.
+	//-------------------------------------------------------------------------------
 	conf := config.LoadConfig(yamlFile)
-	fmt.Printf("Loaded config: %+v\n", conf)
+	fmt.Printf("Opnsense_monitor: Loaded config: %+v\n", conf)
 
-	// Send the client slice and the response channel to CreateApiRequests
-	// To populate the slice with the clients for each of the endpoints in the config file.
-	// err := CreateApiRequests(conf, &httpClients, responseChannel)
-	// if err != nil {
-	// 	fmt.Printf("Opnsense_monitor.go -- Error creating API requests: %v\n", err)
-	// 	return
-	// }
+	//-------------------------------------------------------------------------------
+	//	Start Data Handler routines.
+	//-------------------------------------------------------------------------------
+	go dataHandler.HandleIncomingData()
+	go dataHandler.HandleRequests()
 
-	//-------------------------------------------------------------------
-	//	   Start client jobs for retrieving json from api endpoints
-	//-------------------------------------------------------------------
-	// Here, eventually, loop over the clients and start go routines for
-	// each one.
+	//-------------------------------------------------------------------------------
+	// Create a slice to hold the clients. One for each endpoint in the config file.
+	//-------------------------------------------------------------------------------
+	requestObject, _ := conf.CreateApiRequests()
+	fmt.Printf("Opnsense_monitor: Populated API requests: %+v\n", requestObject)
 
-	//-------------------------------------------------------------------
-	//     Create the web server to serve the json data to the web page
-	//-------------------------------------------------------------------
-	server := &server.Server{
-		Port:            conf.Server.Port,
-		Host:            conf.Server.Host,
-		Conf:            conf,
-		Clients:         httpClients,
-		ResponseChannel: responseChannel,
+	//-------------------------------------------------------------------------------
+	// Create a client for each endpoint in the config file and start the client
+	//-------------------------------------------------------------------------------
+	for _, req := range requestObject {
+		newClient := client.NewCaller(req, responseChannel)
+		requestClients = append(requestClients, newClient)
+	}
+
+	//-------------------------------------------------------------------------------
+	// Start the clients to call the endpoints and gather the data.
+	//-------------------------------------------------------------------------------
+	for _, client := range requestClients {
+		fmt.Printf("Starting client for: %+v\n", client)
+		go client.Call()
 	}
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
 	//-------------------------------------------------------------------
+	server := &server.Server{
+		Port:			conf.Server.Port,
+		Host:			conf.Server.Host,
+		Conf:			conf,
+		RequestChannel:		requestChannel,
+		OutgoingChannel:	outgoingChannel,
+	}
 	server.StartServer()
 }
-
-

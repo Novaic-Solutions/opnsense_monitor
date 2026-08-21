@@ -7,7 +7,7 @@ database:
 
 server:
   host: ""
-  port: 0
+  port: 9100
 
 api:
   api_key: ""
@@ -18,61 +18,63 @@ api:
         uri: "/api/diagnostics/interface/search_arp/"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: 
           current: 1
           rowCount: -1
           resolve: "no"
-      response_obj_type: "ArpTableEntry"
-      type: "interface"
+      response_obj_type: "ArpTable"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/interface/getInterfaceStatistics"
         method: "GET"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: {}
-      response_obj_type: "IFaceStatistics"
-      type: "interface"
+      response_obj_type: "IfaceStatistics"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/firewall/query_pf_top"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body:
           current: 1
           rowCount: -1
-      response_obj_type: "FirewallSession"
-      type: "firewall"
+      response_obj_type: "FirewallSessions"
+      type: "request"
 
     - request:
         uri: "/api/diagnostics/firewall/query_states"
         method: "POST"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body:
           current: 1
           rowCount: -1
-      response_obj_type: "FirewallState"
-      type: "firewall"
+      response_obj_type: "FirewallStates"
+      type: "request"
 
 # Statistics for the firewall interfaces.
     - request:
         uri: "/api/diagnostics/firewall/pf_statistics/interfaces"
         method: "GET"
         response_type: "application/json"
-        params: ""
+        params: {}
         request_body: {}
-      response_obj_type: "IfaceTraffic"
-      type: "firewall"
+      response_obj_type: "Interfaces"
+      type: "request"
 
 # Live stream of firewall logs.
     - request:
         uri: "/api/diagnostics/firewall/log/"
         method: "GET"
         response_type: "application/json"
-        params: "digest={digest}&limit={limit}"
+        params: 
+          digest: ""
+          limit: "10000"
         request_body: {}
       response_obj_type: "FirewallLogEntry"
       type: "firewall_log_stream"
