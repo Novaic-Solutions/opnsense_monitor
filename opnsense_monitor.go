@@ -4,6 +4,10 @@ import (
 	"embed"
 	"fmt"
 	"sync"
+	"os/signal"
+	"context"
+	"os"
+	"syscall"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
@@ -37,6 +41,11 @@ func init() {
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	var wg sync.WaitGroup
+
 	dataMutex := new(sync.Mutex)
 	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
