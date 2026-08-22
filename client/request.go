@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"bytes"
 	"time"
+	"sync"
+	"context"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
 )
@@ -88,7 +90,10 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 //----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-func (req *Request) Call() {
+func (req *Request) Call(ctx context.Context, wg *sync.WaitGroup) {
+	// This may cause an issue with the wait group since this function is recursive. Need to figure out how to handle this.
+	defer wg.Done()
+
 	var httpReq *http.Request
 	var err error
 
@@ -148,5 +153,5 @@ func (req *Request) Call() {
 	req.ResponseChannel <- apiResponse
 
 	time.Sleep(15 * time.Second)
-	req.Call()
+	req.Call(ctx, wg)
 }

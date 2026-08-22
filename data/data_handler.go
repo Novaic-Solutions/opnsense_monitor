@@ -38,52 +38,61 @@ func (dh *DataHandler) HandleIncomingData(ctx context.Context, wg *sync.WaitGrou
 	fmt.Printf("DataHandler.HandleIncomingData: Mutex Address --> %p\n", dh.DataMutex)
 
 	for {
-		
-	}
-
-	for incomingData := range dh.Incoming {
+		// Check if the context has been cancelled or timed out
+		// If so, exit the loop and return
+		// Allows for graveful shutdown of the application and all go routines
 		select {
 		case <-ctx.Done():
 			fmt.Printf("DataHandler.HandleIncomingData: Context cancelled, exiting.\n")
 			return
 		default:
 		}
-		
-		fmt.Printf("DataHandler.HandleIncomingData: Received data from endpoint response type: %s\n", incomingData.ResponseDataType)
-		
-		dh.DataMutex.Lock()
 
-		fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.\n")
+		select {
+		case incomingData, ok := <-dh.Incoming:
+			if !ok {
+				fmt.Printf("DataHandler.HandleIncomingData: Incoming channel closed, exiting.\n")
+				return
+			}
 
-		// Process the incoming data and update the Metrics map
-		switch incomingData.ResponseDataType {
-		case "FirewallLogEntry":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessFirewallLogEntries(incomingData.Data.([]FirewallLogEntry))
-		case "ArpTable":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessArpTable(incomingData.Data.(ArpTable))
-		case "IfaceStatistics":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessIfaceStatistics(incomingData.Data.(IfaceStatistics))
-		case "FirewallSessions":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessFirewallSessions(incomingData.Data.(FirewallSessions))
-		case "FirewallStates":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessFirewallStates(incomingData.Data.(FirewallStates))
-		case "Interfaces":
-			// Pass the incomingData object over to a function that will process the data and update the Metrics map
-			dh.ProcessInterfaces(incomingData.Data.(Interfaces))
+			fmt.Printf("DataHandler.HandleIncomingData: Received data from endpoint response type: %s\n", incomingData.ResponseDataType)
+			
+			dh.DataMutex.Lock()
+			
+			fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.\n")
+
+			// Process the incoming data and update the Metrics map
+			switch incomingData.ResponseDataType {
+			case "FirewallLogEntry":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessFirewallLogEntries(incomingData.Data.([]FirewallLogEntry))
+			case "ArpTable":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessArpTable(incomingData.Data.(ArpTable))
+			case "IfaceStatistics":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessIfaceStatistics(incomingData.Data.(IfaceStatistics))
+			case "FirewallSessions":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessFirewallSessions(incomingData.Data.(FirewallSessions))
+			case "FirewallStates":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessFirewallStates(incomingData.Data.(FirewallStates))
+			case "Interfaces":
+				// Pass the incomingData object over to a function that will process the data and update the Metrics map
+				dh.ProcessInterfaces(incomingData.Data.(Interfaces))
+			default:
+				// Handle unknown response data types if necessary
+				fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
+			}
+			dh.DataMutex.Unlock()
+			fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.\n")
+			// Clear old data from the Metrics and MetricsLastUpdated maps
+			fmt.Printf("DataHandler.HandleIncomingData: Total metrics stored: %d\n", len(dh.Metrics))
+			dh.ClearOldData()
 		default:
-			// Handle unknown response data types if necessary
-			fmt.Printf("DataHandler.HandleIncomingData: Unknown response data type: %s\n", incomingData.ResponseDataType)
+			time.Sleep(100 * time.Millisecond) // Prevent busy waiting
 		}
-		dh.DataMutex.Unlock()
-		fmt.Printf("DataHandler.HandleIncomingData: Mutex Unlocked.\n")
-		// Clear old data from the Metrics and MetricsLastUpdated maps
-		fmt.Printf("DataHandler.HandleIncomingData: Total metrics stored: %d\n", len(dh.Metrics))
-		//dh.ClearOldData()
 	}
 }
 
@@ -107,24 +116,36 @@ func (dh *DataHandler) HandleRequests(ctx context.Context, wg *sync.WaitGroup) {
 
 	fmt.Printf("DataHandler.HandleRequests: Mutex Address --> %p\n", dh.DataMutex)
 
-	for request := range dh.Request {
+	for {
+		// Graceful shutdown of the go routine if the context is cancelled or times out
+		select {
+		case <-ctx.Done():
+			fmt.Printf("DataHandler.HandleIncomingData: Context cancelled, exiting.\n")
+			return
+		default:
+		}
 
-		fmt.Printf("DataHandler.HandleRequests: Received new request\n")
+		select {
+		case _, ok := <-dh.Request:
+			if !ok {
+				fmt.Printf("DataHandler.HandleRequests: Request channel closed, exiting.\n")
+				return
+			}
 
-		dh.DataMutex.Lock()
-		fmt.Printf("DataHandler.HandleRequests: Mutex Locked.\n")
+			fmt.Printf("DataHandler.HandleRequests: Received new request\n")
 
-		switch request {
-		case "metrics":
+			dh.DataMutex.Lock()
+			fmt.Printf("DataHandler.HandleRequests: Mutex Locked.\n")
 			fmt.Printf("DataHandler.HandleRequests: Creating metrics string.\n")
 			metricsString := dh.CreateMetricsString()
 			fmt.Printf("DataHandler.HandleRequests: Sending metrics string of length %d.\n", len(metricsString))
 			dh.Outgoing <- metricsString
+
+			dh.DataMutex.Unlock()
+			fmt.Printf("DataHandler.HandleRequests: Mutex Unlocked.\n")
 		default:
-			fmt.Printf("DataHandler.HandleRequests: Unknown request: %s\n", request)
+			time.Sleep(100 * time.Millisecond) // Prevent busy waiting
 		}
-		dh.DataMutex.Unlock()
-		fmt.Printf("DataHandler.HandleRequests: Mutex Unlocked.\n")
 	}
 }
 

@@ -6,6 +6,8 @@ import (
 	"time"
 	"net/http"
 	"encoding/json"
+	"context"
+	"sync"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
 )
@@ -64,7 +66,9 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 //----------------------------------------------------------------------------
 // Perform the HTTP call
 //----------------------------------------------------------------------------
-func (apiReq *FirewallLogStreamClient) Call() {
+func (apiReq *FirewallLogStreamClient) Call(ctx context.Context, wg *sync.WaitGroup) {
+	// This might cause an issue with the wait group since this function is recursive. Need to figure out how to handle this.
+	defer wg.Done()
 	var req *http.Request
 	var err error
 
@@ -123,5 +127,5 @@ func (apiReq *FirewallLogStreamClient) Call() {
 
 	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[len(apiResponse.Data.([]data.FirewallLogEntry))-1].Digest
 	apiReq.ApiRequest.Params["limit"] = "10000"
-	apiReq.Call()
+	apiReq.Call(ctx, wg)
 }

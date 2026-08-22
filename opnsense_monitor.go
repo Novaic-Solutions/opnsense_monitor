@@ -65,8 +65,9 @@ func main() {
 	//-------------------------------------------------------------------------------
 	//	Start Data Handler routines.
 	//-------------------------------------------------------------------------------
-	go dataHandler.HandleIncomingData()
-	go dataHandler.HandleRequests()
+	wg.Add(2)
+	go dataHandler.HandleIncomingData(ctx, &wg)
+	go dataHandler.HandleRequests(ctx, &wg)
 
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
@@ -87,7 +88,7 @@ func main() {
 	//-------------------------------------------------------------------------------
 	for _, client := range requestClients {
 		fmt.Printf("Starting client for: %+v\n", client)
-		go client.Call()
+		go client.Call(ctx, &wg)
 	}
 
 	//-------------------------------------------------------------------
