@@ -27,6 +27,9 @@ import (
 //go:embed resources/config.yaml
 var yamlFile embed.FS
 
+// https://zerokspot.com/weblog/2020/11/09/managing-goroutines/
+// https://dev.to/jones_charles_ad50858dbc0/graceful-goroutine-shutdowns-in-go-a-practical-guide-2b9a
+
 
 //----------------------------------------------------------------------------
 //	Initialize the application, load the configuration, create the API requests,
@@ -65,9 +68,13 @@ func main() {
 	//-------------------------------------------------------------------------------
 	//	Start Data Handler routines.
 	//-------------------------------------------------------------------------------
-	wg.Add(2)
-	go dataHandler.HandleIncomingData(ctx, &wg)
-	go dataHandler.HandleRequests(ctx, &wg)
+	//wg.Add(2)
+	wg.Go(func() {
+		dataHandler.HandleIncomingData(ctx)
+	})
+	wg.Go(func() {
+		dataHandler.HandleRequests(ctx)
+	})
 
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
@@ -79,7 +86,7 @@ func main() {
 	// Create a client for each endpoint in the config file and start the client
 	//-------------------------------------------------------------------------------
 	for _, req := range requestObject {
-		wg.Add(1)
+		//wg.Add(1)
 		newClient := client.NewCaller(req, responseChannel)
 		requestClients = append(requestClients, newClient)
 	}
@@ -88,21 +95,25 @@ func main() {
 	// Start the clients to call the endpoints and gather the data.
 	//-------------------------------------------------------------------------------
 	for _, client := range requestClients {
-		wg.Add(1)
+		//wg.Add(1)
 		fmt.Printf("Starting client for: %+v\n", client)
-		go client.Caller(ctx, &wg)
+		wg.Go(func() {
+			client.Caller(ctx)
+		})
 	}
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
 	//-------------------------------------------------------------------
 	server := &server.Server{
-		Port:			conf.Server.Port,
-		Host:			conf.Server.Host,
-		Conf:			conf,
+		Port:				conf.Server.Port,
+		Host:				conf.Server.Host,
+		Conf:				conf,
 		RequestChannel:		requestChannel,
 		OutgoingChannel:	outgoingChannel,
 	}
 
-	server.StartServer()
+	wg.Go(func() {
+		server.StartServer()
+	})
 }
