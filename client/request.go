@@ -88,11 +88,27 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 }
 
 //----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
+func (req *Request) Caller(ctx context.Context, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for{
+		select {
+		case <-ctx.Done():
+			fmt.Printf("Request.Caller: Context cancelled, exiting.\n")
+			return
+		default:
+			req.Call()
+		}
+	}
+}
+
+
+//----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
-func (req *Request) Call(ctx context.Context, wg *sync.WaitGroup) {
-	// This may cause an issue with the wait group since this function is recursive. Need to figure out how to handle this.
-	defer wg.Done()
+func (req *Request) Call() {
 
 	var httpReq *http.Request
 	var err error
@@ -153,5 +169,4 @@ func (req *Request) Call(ctx context.Context, wg *sync.WaitGroup) {
 	req.ResponseChannel <- apiResponse
 
 	time.Sleep(15 * time.Second)
-	req.Call(ctx, wg)
 }

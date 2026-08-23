@@ -15,7 +15,8 @@ import (
 
 
 type Caller interface {
-	Call(ctx context.Context, wg *sync.WaitGroup)
+	Caller(ctx context.Context, wg *sync.WaitGroup)
+	Call()
 }
 
 //----------------------------------------------------------------------------

@@ -79,6 +79,7 @@ func main() {
 	// Create a client for each endpoint in the config file and start the client
 	//-------------------------------------------------------------------------------
 	for _, req := range requestObject {
+		wg.Add(1)
 		newClient := client.NewCaller(req, responseChannel)
 		requestClients = append(requestClients, newClient)
 	}
@@ -87,8 +88,9 @@ func main() {
 	// Start the clients to call the endpoints and gather the data.
 	//-------------------------------------------------------------------------------
 	for _, client := range requestClients {
+		wg.Add(1)
 		fmt.Printf("Starting client for: %+v\n", client)
-		go client.Call(ctx, &wg)
+		go client.Caller(ctx, &wg)
 	}
 
 	//-------------------------------------------------------------------
@@ -101,5 +103,6 @@ func main() {
 		RequestChannel:		requestChannel,
 		OutgoingChannel:	outgoingChannel,
 	}
+
 	server.StartServer()
 }
