@@ -32,8 +32,7 @@ type DataHandler struct {
 //  This will be used in a go rountine to handle the incoming data from 
 //  the clients API responses and update the Metrics map with the data.
 //-----------------------------------------------------------------------------
-func (dh *DataHandler) HandleIncomingData(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
+func (dh *DataHandler) HandleIncomingData(ctx context.Context) {
 
 	fmt.Printf("DataHandler.HandleIncomingData: Mutex Address --> %p\n", dh.DataMutex)
 
@@ -111,8 +110,7 @@ func (dh *DataHandler) ClearOldData() {
 //----------------------------------------------------------------------------
 // This will be used in a go routine to handle the requests from the main application
 //----------------------------------------------------------------------------
-func (dh *DataHandler) HandleRequests(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
+func (dh *DataHandler) HandleRequests(ctx context.Context) {
 
 	fmt.Printf("DataHandler.HandleRequests: Mutex Address --> %p\n", dh.DataMutex)
 

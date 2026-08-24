@@ -27,9 +27,6 @@ import (
 //go:embed resources/config.yaml
 var yamlFile embed.FS
 
-// https://zerokspot.com/weblog/2020/11/09/managing-goroutines/
-// https://dev.to/jones_charles_ad50858dbc0/graceful-goroutine-shutdowns-in-go-a-practical-guide-2b9a
-
 
 //----------------------------------------------------------------------------
 //	Initialize the application, load the configuration, create the API requests,
@@ -38,7 +35,7 @@ var yamlFile embed.FS
 func init() {
 	// Good for setting up database connections, etc.
 	// Not used yet in this application, but could be used in the future.
-}
+}	
 
 //----------------------------------------------------------------------------
 //	Main entry point for the application.
@@ -113,7 +110,51 @@ func main() {
 		OutgoingChannel:	outgoingChannel,
 	}
 
-	wg.Go(func() {
-		server.StartServer()
-	})
+	server.StartServer()
+
+	// Wait for all goroutines to finish.
+	wg.Wait()
 }
+
+// // You can edit this code!
+// // Click here and start typing.
+// package main
+
+// import (
+// 	"context"
+// 	"fmt"
+// 	"sync"
+// 	"time"
+// )
+
+// func test(ctx context.Context, i int) {
+
+// 	for {
+// 		select {
+// 		case <-ctx.Done():
+// 			return
+// 		default:
+// 		}
+// 		fmt.Printf("Test %+v\n", i)
+// 		time.Sleep(1 * time.Second)
+// 	}
+
+// }
+
+// func main() {
+// 	fmt.Println("Hello, 世界")
+// 	wg := sync.WaitGroup{}
+
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	for i := range 3 {
+// 		wg.Go(func() {
+// 			test(ctx, i)
+// 		})
+// 		time.Sleep(1 * time.Second)
+// 	}
+
+// 	time.Sleep(10 * time.Second)
+// 	// Something happens and you want the worker to stop:
+// 	cancel()
+// 	wg.Wait()
+// }

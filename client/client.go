@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"sync"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
@@ -15,7 +14,7 @@ import (
 
 
 type Caller interface {
-	Caller(ctx context.Context, wg *sync.WaitGroup)
+	Caller(ctx context.Context)
 	Call()
 }
 

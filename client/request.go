@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"bytes"
 	"time"
-	"sync"
 	"context"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
@@ -90,9 +89,7 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-func (req *Request) Caller(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func (req *Request) Caller(ctx context.Context) {
 	for{
 		select {
 		case <-ctx.Done():
@@ -109,7 +106,6 @@ func (req *Request) Caller(ctx context.Context, wg *sync.WaitGroup) {
 // 
 //----------------------------------------------------------------------------
 func (req *Request) Call() {
-
 	var httpReq *http.Request
 	var err error
 

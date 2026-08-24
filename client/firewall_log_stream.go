@@ -6,8 +6,7 @@ import (
 	"time"
 	"net/http"
 	"encoding/json"
-	"context"
-	"sync"
+	"context"	
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
 )
@@ -66,9 +65,7 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-func (apiReq *FirewallLogStreamClient) Caller(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func (apiReq *FirewallLogStreamClient) Caller(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
