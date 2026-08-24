@@ -35,7 +35,7 @@ var yamlFile embed.FS
 func init() {
 	// Good for setting up database connections, etc.
 	// Not used yet in this application, but could be used in the future.
-}	
+}
 
 //----------------------------------------------------------------------------
 //	Main entry point for the application.
@@ -45,7 +45,6 @@ func main() {
 	defer stop()
 
 	var wg sync.WaitGroup
-
 	dataMutex := new(sync.Mutex)
 	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
@@ -65,7 +64,6 @@ func main() {
 	//-------------------------------------------------------------------------------
 	//	Start Data Handler routines.
 	//-------------------------------------------------------------------------------
-	//wg.Add(2)
 	wg.Go(func() {
 		dataHandler.HandleIncomingData(ctx)
 	})
@@ -83,7 +81,6 @@ func main() {
 	// Create a client for each endpoint in the config file and start the client
 	//-------------------------------------------------------------------------------
 	for _, req := range requestObject {
-		//wg.Add(1)
 		newClient := client.NewCaller(req, responseChannel)
 		requestClients = append(requestClients, newClient)
 	}
@@ -110,10 +107,17 @@ func main() {
 		OutgoingChannel:	outgoingChannel,
 	}
 
-	server.StartServer()
+	server.StartServer(ctx)
 
 	// Wait for all goroutines to finish.
+	fmt.Printf("Opnsense_monitor: Waiting for all goroutines to finish...\n")
 	wg.Wait()
+
+	// Close out the channels
+	fmt.Printf("Opnsense_monitor: Closing channels...\n")
+	close(responseChannel)
+	close(requestChannel)
+	close(outgoingChannel)
 }
 
 // // You can edit this code!

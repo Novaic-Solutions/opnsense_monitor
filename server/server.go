@@ -42,7 +42,7 @@ func (serv *Server) GetData() string {
 //----------------------------------------------------------------------------
 //  Start the web server to serve the JSON data to the web page.
 //----------------------------------------------------------------------------
-func (serv *Server) StartServer() {
+func (serv *Server) StartServer(ctx context.Context) {
 	httpServer := &http.Server{
 		Addr: fmt.Sprintf("%s:%s", serv.Host, serv.Port),
 	}
@@ -66,9 +66,7 @@ func (serv *Server) StartServer() {
 		}
 	}()
 
-	sigChan := make(chan os.Signal, 1)
-    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-    <-sigChan
+	<-ctx.Done()
 
     shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
     defer shutdownRelease()

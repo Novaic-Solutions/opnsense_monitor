@@ -55,9 +55,9 @@ func (dh *DataHandler) HandleIncomingData(ctx context.Context) {
 			}
 
 			fmt.Printf("DataHandler.HandleIncomingData: Received data from endpoint response type: %s\n", incomingData.ResponseDataType)
-			
+
 			dh.DataMutex.Lock()
-			
+
 			fmt.Printf("DataHandler.HandleIncomingData: Mutex Locked.\n")
 
 			// Process the incoming data and update the Metrics map
