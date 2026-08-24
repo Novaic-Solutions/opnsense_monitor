@@ -113,7 +113,5 @@ func main() {
 		OutgoingChannel:	outgoingChannel,
 	}
 
-	wg.Go(func() {
-		server.StartServer()
-	})
+	server.StartServer(ctx)
 }
