@@ -5,9 +5,6 @@ import (
 	"net/http"
 	"errors"
 	"time"
-	"os"
-	"os/signal"
-	"syscall"
 	"context"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )

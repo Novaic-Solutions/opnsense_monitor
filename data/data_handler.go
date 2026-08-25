@@ -99,7 +99,7 @@ func (dh *DataHandler) ClearOldData() {
 	// Implement logic to clear old data from Metrics and MetricsLastUpdated maps
 	dh.DataMutex.Lock()
 	for metricName, lastUpdated := range dh.MetricsLastUpdated {
-		if time.Since(lastUpdated) > time.Hour {
+		if time.Since(lastUpdated) > 5 * time.Minute {
 			delete(dh.Metrics, metricName)
 			delete(dh.MetricsLastUpdated, metricName)
 		}
