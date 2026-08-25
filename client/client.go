@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
@@ -13,6 +14,7 @@ import (
 
 
 type Caller interface {
+	Caller(ctx context.Context)
 	Call()
 }
 

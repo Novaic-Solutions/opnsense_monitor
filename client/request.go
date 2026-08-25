@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"bytes"
 	"time"
+	"context"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
 )
@@ -86,6 +87,22 @@ func (req *Request) CreateResponseObj(httpResp *http.Response) config.EndpointRe
 }
 
 //----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
+func (req *Request) Caller(ctx context.Context) {
+	for{
+		select {
+		case <-ctx.Done():
+			fmt.Printf("Request.Caller: Context cancelled, exiting.\n")
+			return
+		default:
+			req.Call()
+		}
+	}
+}
+
+
+//----------------------------------------------------------------------------
 // 
 //----------------------------------------------------------------------------
 func (req *Request) Call() {
@@ -148,5 +165,4 @@ func (req *Request) Call() {
 	req.ResponseChannel <- apiResponse
 
 	time.Sleep(15 * time.Second)
-	req.Call()
 }

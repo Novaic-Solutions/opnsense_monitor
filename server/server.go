@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"errors"
+	"time"
+	"context"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 )
 
@@ -36,7 +39,10 @@ func (serv *Server) GetData() string {
 //----------------------------------------------------------------------------
 //  Start the web server to serve the JSON data to the web page.
 //----------------------------------------------------------------------------
-func (serv *Server) StartServer() {
+func (serv *Server) StartServer(ctx context.Context) {
+	httpServer := &http.Server{
+		Addr: fmt.Sprintf("%s:%s", serv.Host, serv.Port),
+	}
 
 	//------------------------------------------------------------------------
 	// Register the request handler for all incoming requests.
@@ -46,13 +52,24 @@ func (serv *Server) StartServer() {
 	//------------------------------------------------------------------------
 	// Create the address string for the server to listen on.
 	//------------------------------------------------------------------------
-	addr := fmt.Sprintf("%s:%s", serv.Host, serv.Port)
 	
 	//------------------------------------------------------------------------
 	// Start the server and listen for incoming requests.
 	//------------------------------------------------------------------------
-	fmt.Printf("Server.go -- Starting server at %s\n", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		fmt.Printf("Server.go -- Error starting server: %v\n", err)
-	}
+	fmt.Printf("Server.go -- Starting server at %s\n", httpServer.Addr)
+	go func() {
+		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			fmt.Printf("Server.go -- server error: %v\n", err)
+		}
+	}()
+
+	<-ctx.Done()
+
+    shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
+    defer shutdownRelease()
+
+    if err := httpServer.Shutdown(shutdownCtx); err != nil {
+        fmt.Printf("Server.go -- HTTP shutdown error: %v\n", err)
+    }
+    fmt.Printf("Server.go -- Graceful shutdown complete.\n")
 }

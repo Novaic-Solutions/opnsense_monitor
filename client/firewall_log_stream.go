@@ -6,6 +6,7 @@ import (
 	"time"
 	"net/http"
 	"encoding/json"
+	"context"	
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
 )
@@ -59,6 +60,21 @@ func (apiReq *FirewallLogStreamClient) CreateResponseObj(httpResp *http.Response
 	}
 
 	return response
+}
+
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
+func (apiReq *FirewallLogStreamClient) Caller(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Printf("FirewallLogStreamClient.Caller: Context cancelled, exiting.\n")
+			return
+		default:
+			apiReq.Call()
+		}
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -123,5 +139,4 @@ func (apiReq *FirewallLogStreamClient) Call() {
 
 	apiReq.ApiRequest.Params["digest"] = apiResponse.Data.([]data.FirewallLogEntry)[len(apiResponse.Data.([]data.FirewallLogEntry))-1].Digest
 	apiReq.ApiRequest.Params["limit"] = "10000"
-	apiReq.Call()
 }

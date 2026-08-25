@@ -4,6 +4,10 @@ import (
 	"embed"
 	"fmt"
 	"sync"
+	"os/signal"
+	"context"
+	"os"
+	"syscall"
 	"github.com/Novaic-Solutions/opnsense_monitor/config"
 	"github.com/Novaic-Solutions/opnsense_monitor/client"
 	"github.com/Novaic-Solutions/opnsense_monitor/data"
@@ -37,6 +41,10 @@ func init() {
 //	Main entry point for the application.
 //----------------------------------------------------------------------------
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	var wg sync.WaitGroup
 	dataMutex := new(sync.Mutex)
 	var requestClients []client.Caller
 	responseChannel := make(chan config.EndpointResponse, 100)
@@ -56,8 +64,12 @@ func main() {
 	//-------------------------------------------------------------------------------
 	//	Start Data Handler routines.
 	//-------------------------------------------------------------------------------
-	go dataHandler.HandleIncomingData()
-	go dataHandler.HandleRequests()
+	wg.Go(func() {
+		dataHandler.HandleIncomingData(ctx)
+	})
+	wg.Go(func() {
+		dataHandler.HandleRequests(ctx)
+	})
 
 	//-------------------------------------------------------------------------------
 	// Create a slice to hold the clients. One for each endpoint in the config file.
@@ -77,19 +89,33 @@ func main() {
 	// Start the clients to call the endpoints and gather the data.
 	//-------------------------------------------------------------------------------
 	for _, client := range requestClients {
+		//wg.Add(1)
 		fmt.Printf("Starting client for: %+v\n", client)
-		go client.Call()
+		wg.Go(func() {
+			client.Caller(ctx)
+		})
 	}
 
 	//-------------------------------------------------------------------
 	//     Start web server client to serve the json data to the web page
 	//-------------------------------------------------------------------
 	server := &server.Server{
-		Port:			conf.Server.Port,
-		Host:			conf.Server.Host,
-		Conf:			conf,
+		Port:				conf.Server.Port,
+		Host:				conf.Server.Host,
+		Conf:				conf,
 		RequestChannel:		requestChannel,
 		OutgoingChannel:	outgoingChannel,
 	}
-	server.StartServer()
+
+	server.StartServer(ctx)
+
+	// Wait for all goroutines to finish.
+	fmt.Printf("Opnsense_monitor: Waiting for all goroutines to finish...\n")
+	wg.Wait()
+
+	// Close out the channels
+	fmt.Printf("Opnsense_monitor: Closing channels...\n")
+	close(responseChannel)
+	close(requestChannel)
+	close(outgoingChannel)
 }
