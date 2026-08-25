@@ -95,6 +95,9 @@ func (dh *DataHandler) HandleIncomingData(ctx context.Context) {
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Clear out old data from the metrics
+//-----------------------------------------------------------------------------
 func (dh *DataHandler) ClearOldData() {
 	// Implement logic to clear old data from Metrics and MetricsLastUpdated maps
 	dh.DataMutex.Lock()
