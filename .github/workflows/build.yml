@@ -1,0 +1,52 @@
+name: Build_Opnsense_Monitor
+run-name: Build_Opnsense_Monitor
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-opnsense-monitor:
+    runs-on:
+      group: Compute_Runner_O1
+
+    name: Build Opnsense Monitor
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          clean: true
+
+      #- name: Replace tokens
+      #  uses: cschleiden/replace-tokens@v1.4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.26.5'
+
+      - name: Build
+        run: go build -v .
+
+      #- name: Test
+      #  run: go test -v ./...
+
+      - name: Package Files
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp -r ./resources/config.yaml ./dist/
+          cp opensense_monitor ./dist/
+          tar -czvf opnsense_monitor.tar.gz -C dist .
+
+      - name: Upload Artifact
+        shell: bash
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_REPO_URL: ${{ secrets.NEXUS_REPO_URL }}
+        run: |
+          curl -v -u "$NEXUS_USER:$NEXUS_PASSWORD" \
+           --upload-file opnsense_monitor.tar.gz \
+           https://$NEXUS_REPO_URL/opnsense_monitor.tar.gz
